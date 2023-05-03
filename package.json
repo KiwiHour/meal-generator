@@ -8,7 +8,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"update-types": "npx supabase gen types typescript --project-id \"foudgyiorbmyuobmysul\" > src/lib/types/supabase-schema.ts"
+		"update-schema": "npx supabase gen types typescript --project-id \"foudgyiorbmyuobmysul\" > src/lib/types/supabase-schema.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",

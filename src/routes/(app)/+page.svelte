@@ -2,11 +2,6 @@
     import type { PageData } from "./$types";
 
 	export let data: PageData;
-
 </script>
 
-<main>
-
-	{data.forename}
-	
-</main>
+{data.forename}

@@ -1,30 +1,30 @@
 <script lang="ts">
+    import type { FormParams } from "$lib/types";
     import type { ActionData } from "./$types";
+    import { Error, Form } from "$lib/components";
 
 	export let form: ActionData;
+
+	let registerFormParams: FormParams = {
+		action: "?/register",
+		method: "post",
+		submitText: "Register",
+		fields: [
+			{ type: "email", name: "email", placeholder: "Email" },
+			{ type: "password", name: "password", placeholder: "Password" },
+			{ type: "password", name: "retypedPassword", placeholder: "Retyped password" },
+
+			{ type: "text", name: "forename", placeholder: "Firstname" }
+		]
+	}
 </script>
 
-<main>
-	
-	<form action="?/register" method="post" autocomplete="off" class="generic-form">
-		<!-- Supabase auth user -->
-		<input type="email" name="email" placeholder="Email" required>
-		<input type="password" name="password" placeholder="Password" required>
-		<input type="password" name="retypedPassword" placeholder="Retyped Password" required>
-	
-		<!-- Profile details -->
-		<input type="text" name="forename" placeholder="Firstname" required>
-	
-		<input type="submit" value="register">
-	</form>
+<Form params={registerFormParams} />
+<p>Already have an account? <a href="/login">Login</a></p>
 
-	{#if form?.success}
-		<p>Please check your email inbox</p>
-	{/if}
-	
-	<p>Already have an account? <a href="/login">Login</a></p>
+{#if form?.success}
+	<p>Please check your email inbox</p>
+{/if}
 
-	<!-- make a component for this -->
-	{form?.error_message ? form.error_message : ""}
+<Error error={form?.error} />
 
-</main>

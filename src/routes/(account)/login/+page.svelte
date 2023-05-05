@@ -1,19 +1,23 @@
 <script lang="ts">
-    import type { ActionData } from "./$types";
+    import type { FormParams } from "$lib/types";
+	import type { ActionData } from "./$types";
+    import { Error, Form } from "$lib/components";
 
 	export let form: ActionData;
+
+	let loginFormParams: FormParams = {
+		action: "?/login",
+		method: "post",
+		submitText: "Login",
+		fields: [
+			{ type: "email", name: "email", placeholder: "Email" },
+			{ type: "password", name: "password", placeholder: "Password" }
+		]
+	}
 </script>
 
-<main>
+<Form params={loginFormParams} />
+<p><a href="/reset-password">Forgot your password?</a></p>
+<p>Need an account? <a href="/register">Register</a></p>
 
-	<form action="?/login" method="post" autocomplete="off" class="generic-form">
-		<input type="email" name="email" placeholder="Email" required>
-		<input type="password" name="password" placeholder="Password" required>
-		<input type="submit" value="login">
-	</form>
-	
-	<p>Need an account? <a href="/register">Register</a></p>
-	
-	{form?.error_message ? form.error_message : ""}	
-
-</main>
+<Error error={form?.error} />

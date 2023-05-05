@@ -1,28 +1,31 @@
+import type { SupabaseSchema } from '$lib/types';
 import { redirect } from '@sveltejs/kit';
 import { Profile } from '$lib/classes';
-import supabase from '$lib/clients/supabase';
+import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { createSupabaseServerClient } from "@supabase/auth-helpers-sveltekit";
 
-const noJWTPaths = ["/login", "/register"]
+const noLoginRoutes = ["/login", "/register", "/reset-password"]
 
 export async function handle({ event, resolve }) {
 
-	if (event.url.pathname == "/") throw redirect(303, "/homepage")
+	console.log(event.request.method + " " + event.url.pathname)
 
-	// Do stuff that doesn't need JWT
-	if (noJWTPaths.includes(event.url.pathname)) return await resolve(event);
+	// Supabase setup
+	event.locals.supabase = createSupabaseServerClient<SupabaseSchema>({
+		supabaseUrl: PUBLIC_SUPABASE_URL,
+		supabaseKey: PUBLIC_SUPABASE_ANON_KEY,
+		event
+	});
+	event.locals.getSession = async () => {
+		const { data: { session } } = await event.locals.supabase.auth.getSession();
+		return session;
+	};
+	event.locals.profile = new Profile(event.locals.supabase)
 
-	// Check if user has a jwt
-	const jwt = event.cookies.get("jwt");
-	if (!jwt) throw redirect(303, "/login")
+	if (noLoginRoutes.includes(event.url.pathname)) return await resolve(event);
 
-	// Check if jwt is valid
-	const { data: { user } } = await supabase.auth.getUser(jwt)
-	if (!user) throw redirect(303, "/login")
-
-	const profile = new Profile(user.id as string);
-
-	// Attach to locals
-	event.locals.profile = profile
+	// Check if logged in
+	if (!await event.locals.supabase.auth.getUser()) { console.log("not logged in"); throw redirect(303, "/login") }
 
 	return await resolve(event);
 }

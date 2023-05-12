@@ -11,7 +11,6 @@ export default class Profile {
 	// Getters
 	private async getDetails() {
 		let { data, error } = await this.supabase.from("profiles").select("*").single();
-		console.log(data)
 		if (error) throw error
 		return data;
 	}

@@ -11,13 +11,14 @@ export const actions: Actions = {
 
 		// Add user to authenticated supabase users
 		const userMetadata = { forename }
-		const { data: signUpData, error: signUpError } = await locals.supabase.auth.signUp(
-			{
-				email, password,
-				options: { data: userMetadata }
-			})
-
+		const { data: signUpData, error: signUpError } = await locals.supabase.auth.admin.generateLink({
+			type: "signup",
+			email, password,
+			options: { data: userMetadata }
+		})
 		if (signUpError) return fail(500, { error: { message: signUpError.message } });
+
+		await locals.mailer.sendConfirmationEmail(email, signUpData.properties.action_link)
 
 		return { success: true }
 

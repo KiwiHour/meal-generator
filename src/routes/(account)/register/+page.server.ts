@@ -20,6 +20,7 @@ export const actions: Actions = {
 
 		await locals.mailer.sendConfirmationEmail(email, signUpData.properties.action_link)
 
+		await locals.logger.log(`register (${email})`)
 		return { success: true }
 
 	}

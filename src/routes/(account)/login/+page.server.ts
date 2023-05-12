@@ -1,6 +1,5 @@
 import type { StringForm } from "$lib/types";
 import { fail, type Actions, redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
 
 export const actions: Actions = {
 	login: async ({ request, locals }) => {
@@ -11,6 +10,7 @@ export const actions: Actions = {
 		if (error) return fail(500, { error: { message: error.message } });
 		if (!data.session) return fail(500, { error: { message: "could not connect to supabase correctly" } })
 
+		await locals.logger.log("login")
 		throw redirect(303, "/")
 	}
 };

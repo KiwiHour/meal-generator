@@ -24,6 +24,12 @@ export default class Profile {
 		if (!details?.forename) throw new Error("Could not get profile's 'is_new_profile'")
 		return details?.is_new_profile ?? true // defaults to false if undefined
 	}
+	public async getLogs() {
+		// USERS HAVE THE RIGHT TO SEE THEIR OWN LOGS, DAMNIT!
+		let { data: logs, error } = await this.supabase.from("logs").select("*");
+		if (error) throw error
+		return logs ?? []
+	}
 
 
 	// Setters

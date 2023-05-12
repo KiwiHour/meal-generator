@@ -14,12 +14,14 @@ export const actions: Actions = {
 		const { data, error } = await locals.supabase.auth.admin.generateLink({
 			type: "recovery",
 			email,
-			options: { redirectTo: url.origin + "/update-password" }
+			options: { redirectTo: url.origin + "/reset-password-confirmation" }
 		})
+		// const { data, error } = await locals.supabase.auth.resetPasswordForEmail(email, { redirectTo: "/update-password" })
 		if (error) return fail(500, { error: { message: error.message } })
 
 		await locals.mailer.sendResetPasswordEmail(email, data.properties.action_link)
 
+		await locals.logger.log(`resetpassword (${email})`)
 		return { success: true }
 	}
 };

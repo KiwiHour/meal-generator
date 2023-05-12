@@ -23,6 +23,7 @@
 	"dependencies": {
 		"@supabase/auth-helpers-sveltekit": "^0.9.4",
 		"@supabase/supabase-js": "^2.21.0",
+		"@types/nodemailer": "^6.4.7",
 		"supabase": "^1.52.3"
 	}
 }

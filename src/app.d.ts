@@ -1,7 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
 import type { Profile } from "$lib/classes";
 import type { SupabaseSchema } from "$lib/types";
-import type { Session, SupabaseClient } from "@supabase/supabase-js";
+import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 
 // for information about these interfaces
 declare global {
@@ -11,6 +11,7 @@ declare global {
 			profile: Profile
 			supabase: SupabaseClient<SupabaseSchema>
 			getSession(): Promise<Session | null>;
+			getUser(): Promise<User | null>
 		}
 		interface PageData {
 			session: Session | null;

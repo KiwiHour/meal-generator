@@ -11,14 +11,21 @@ export default class Profile {
 	// Getters
 	private async getDetails() {
 		let { data, error } = await this.supabase.from("profiles").select("*").single();
+		console.log(data)
 		if (error) throw error
 		return data;
 	}
-
 	public async getForename() {
 		let details = await this.getDetails();
-		return details?.forename
+		if (!details?.forename) throw new Error("Could not get profile's 'forename'")
+		return details.forename
 	}
+	public async isNew() {
+		let details = await this.getDetails();
+		if (!details?.forename) throw new Error("Could not get profile's 'is_new_profile'")
+		return details?.is_new_profile ?? true // defaults to false if undefined
+	}
+
 
 	// Setters
 

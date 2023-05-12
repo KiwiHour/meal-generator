@@ -14,19 +14,19 @@ export interface Database {
           created_at: string | null
           forename: string | null
           id: string
-          meal_ids: number[] | null
+          is_new_profile: boolean
         }
         Insert: {
           created_at?: string | null
           forename?: string | null
           id: string
-          meal_ids?: number[] | null
+          is_new_profile?: boolean
         }
         Update: {
           created_at?: string | null
           forename?: string | null
           id?: string
-          meal_ids?: number[] | null
+          is_new_profile?: boolean
         }
       }
     }

@@ -20,12 +20,18 @@ export async function handle({ event, resolve }) {
 		const { data: { session } } = await event.locals.supabase.auth.getSession();
 		return session;
 	};
+	event.locals.getUser = async () => {
+		const { data: { user } } = await event.locals.supabase.auth.getUser();
+		return user;
+	}
 	event.locals.profile = new Profile(event.locals.supabase)
 
-	if (noLoginRoutes.includes(event.url.pathname)) return await resolve(event);
+	if (noLoginRoutes.includes(event.url.pathname))
+		return await resolve(event);
 
 	// Check if logged in
-	if (!await event.locals.supabase.auth.getUser()) { console.log("not logged in"); throw redirect(303, "/login") }
+	if (!await event.locals.getUser())
+		throw redirect(303, "/login");
 
 	return await resolve(event);
 }

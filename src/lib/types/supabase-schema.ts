@@ -9,6 +9,46 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      difficulties: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          value?: number | null
+        }
+      }
+      ingredients: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+      }
       logs: {
         Row: {
           created_at: string | null
@@ -47,6 +87,92 @@ export interface Database {
           forename?: string | null
           id?: string
           is_new_profile?: boolean
+        }
+      }
+      recipies: {
+        Row: {
+          created_at: string | null
+          difficulty_id: number | null
+          id: number
+          meal_type_id: number | null
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          difficulty_id?: number | null
+          id?: number
+          meal_type_id?: number | null
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          difficulty_id?: number | null
+          id?: number
+          meal_type_id?: number | null
+          name?: string | null
+          user_id?: string | null
+        }
+      }
+      tags: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+      }
+      xref_recipe_ingredients: {
+        Row: {
+          created_at: string | null
+          id: number
+          ingredient_id: number | null
+          recipe_id: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          ingredient_id?: number | null
+          recipe_id?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          ingredient_id?: number | null
+          recipe_id?: number | null
+        }
+      }
+      xref_recipe_tags: {
+        Row: {
+          created_at: string | null
+          id: number
+          recipe_id: number | null
+          tag_id: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          recipe_id?: number | null
+          tag_id?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          recipe_id?: number | null
+          tag_id?: number | null
         }
       }
     }

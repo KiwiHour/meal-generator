@@ -7,10 +7,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const { email } = Object.fromEntries(formData) as StringForm;
 
-		// const { data, error } = await locals.supabase.auth.resetPasswordForEmail(email, {
-		// 	redirectTo: url.origin + "/update-password"
-		// });
-
+		// Generate link server side, and then send the email using my own system
 		const { data, error } = await locals.supabase.auth.admin.generateLink({
 			type: "recovery",
 			email,

@@ -2,7 +2,10 @@
 import { PRIVATE_GOOGLE_NODEMAILER_PASSWORD } from "$env/static/private"
 import nodemailer, { type Transporter } from "nodemailer"
 
-export default class EMailer {
+/**
+ * This is used instead of supabase's inbuilt email system. Any requirement of a link as a parameter is the action_link produced by generateLink()
+ */
+export default class Mailer {
 
 	private from: string
 	private fromEmail: string

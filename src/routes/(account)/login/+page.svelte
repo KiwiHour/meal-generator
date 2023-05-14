@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { FormParams } from "$lib/types";
+    import type { FormProps } from "$lib/types";
 	import type { ActionData } from "./$types";
     import { Error, Form } from "$lib/components";
 
 	export let form: ActionData;
 
-	let loginFormParams: FormParams = {
+	let loginFormParams: FormProps = {
 		action: "?/login",
 		method: "post",
 		submitText: "Login",

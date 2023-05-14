@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { FormParams } from "$lib/types";
+    import type { FormProps } from "$lib/types";
 
-	export let params: FormParams;
+	export let params: FormProps;
 </script>
 
 	<form action={params.action} method={params.method} class="generic-form">

@@ -9,46 +9,6 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      difficulties: {
-        Row: {
-          created_at: string | null
-          id: number
-          name: string | null
-          value: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: number
-          name?: string | null
-          value?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: number
-          name?: string | null
-          value?: number | null
-        }
-      }
-      ingredients: {
-        Row: {
-          created_at: string | null
-          id: number
-          name: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: number
-          name?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: number
-          name?: string | null
-          user_id?: string | null
-        }
-      }
       logs: {
         Row: {
           created_at: string | null
@@ -89,6 +49,66 @@ export interface Database {
           is_new_profile?: boolean
         }
       }
+      recipe_difficulties: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          value?: number | null
+        }
+      }
+      recipe_ingredients: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+      }
+      recipe_tags: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
+        }
+      }
       recipies: {
         Row: {
           created_at: string | null
@@ -111,26 +131,6 @@ export interface Database {
           difficulty_id?: number | null
           id?: number
           meal_type_id?: number | null
-          name?: string | null
-          user_id?: string | null
-        }
-      }
-      tags: {
-        Row: {
-          created_at: string | null
-          id: number
-          name: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: number
-          name?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: number
           name?: string | null
           user_id?: string | null
         }

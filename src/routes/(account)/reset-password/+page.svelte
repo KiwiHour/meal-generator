@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { FormParams } from '$lib/types';
+    import type { FormProps } from '$lib/types';
     import type { ActionData } from './$types';
 	import { Error, Form } from '$lib/components';
     
     export let form: ActionData;
 
-	let resetPasswordFormParams: FormParams = {
+	let resetPasswordFormParams: FormProps = {
 		action: "?/reset-password",
 		method: "post",
 		submitText: "Reset Password",

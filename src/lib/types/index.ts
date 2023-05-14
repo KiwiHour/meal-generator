@@ -6,7 +6,7 @@ export type StringForm = {
 export type FormError = {
 	message: string
 }
-export type FormParams = {
+export type FormProps = {
 	action: string,
 	method: "GET" | "POST" | "get" | "post",
 	submitText: string,

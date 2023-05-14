@@ -4,6 +4,8 @@
 <ul style="list-style: none">
 	<li><a href="#user-management">User managment</a></li>
 	<li><a href="database-management">Database management</a></li>
+	<li><a href="database-management">RLS</a></li>
+	<li><a href="database-management">Email system</a></li>
 </ul>
 
 <h2 id="user-management">User management</h2>

@@ -6,4 +6,4 @@
 
 <p>Hello {data.forename}</p>
 
-<a href="/add-recipe">Add a recipe</a>
+<a href="/manage-recipies">Manage recipies</a>

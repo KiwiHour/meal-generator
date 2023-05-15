@@ -1,9 +1,7 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import { page } from "$app/stores";
     import { Loading } from "..";
     import { titleizeString } from "$lib/functions";
-    import NewIngredient from "./NewIngredient.svelte";
     import { selectedIngredientIds } from "$store";
 
 	export let selectedIds: number[];
@@ -12,7 +10,6 @@
 	let triggerReload = 0;
 	let newIngredient: boolean;
 	let ingredientQuery = "";
-	let dispatch = createEventDispatcher()
 
 	function handleIngredientSelect(id: number) {
 		selectedIngredientIds.update(ingredientIds => {
@@ -29,22 +26,37 @@
 		return name.toLowerCase().search(ingredientQuery.toLowerCase()) !== -1
 	}
 
-	function handleNewIngredient(event: CustomEvent) {
+	function handleNewIngredient(id: number) {
 		newIngredient = false
 		ingredientQuery = ""
 		selectedIngredientIds.update(ingredientIds => {
-			ingredientIds.push(event.detail.newIngredientId)
+			ingredientIds.push(id)
 			return ingredientIds
 		})
 		triggerReload++
 	}
+
+	async function addIngredient() {
+		if (confirm(`Add a new ingredient '${ingredientQuery}'?`)) {
+			let { error, id } = await $page.data.profile.addIngredient({ name: ingredientQuery })
+			if (error)
+				// Could handle this error differently, maybe some red text, its flexible yknow
+				alert(error.message);
+			else
+				handleNewIngredient(id as number)
+		}
+	}
+
 
 </script>
 
 <div id="ingredient-selector-container">
 
 	<!-- Outside of await block, as it's not required to have any of the information -->
-	<input type="search" id="ingredient-search" bind:value={ingredientQuery} placeholder="Search ingredients">
+	<form>
+		<input type="search" id="ingredient-search" bind:value={ingredientQuery} placeholder="Search or add ingredients" autocomplete="off">
+		<input type="submit" id="new-ingredient-btn" value="+" on:click={addIngredient}>
+	</form>
 
 	{#key triggerReload}
 		{#await $page.data.profile.getIngredients()}
@@ -64,12 +76,6 @@
 				{/each}
 			</div>
 
-			{#if newIngredient}
-				<NewIngredient on:new-ingredient-added={handleNewIngredient}/>
-			{:else}
-				<input type="button" value="+" on:click={() => newIngredient = true}>
-			{/if}
-
 		{/await}
 	{/key}
 
@@ -86,6 +92,10 @@
 	#ingredient-selector-container #ingredients {
 		display: flex;
 		flex-direction: column;
+	}
+
+	#ingredient-selector-container .ingredient, #ingredient-selector-container #new-ingredient-btn {
+		cursor: pointer;
 	}
 
 	#ingredient-selector-container .ingredient.selected {

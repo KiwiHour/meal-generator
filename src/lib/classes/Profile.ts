@@ -2,7 +2,7 @@ import { type SupabaseTables, type SupabaseSchema, SupabaseErrors, SupabaseSucce
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 function sortAlphabeticallyByProperty<T>(arr: any[], property: string) {
-	return arr.sort((a, b) => a[property] > b[property] ? 1 : a[property] < b[property] ? -1 : 0) as T[]
+	return arr.sort((a, b) => a[property].toLowerCase() > b[property].toLowerCase() ? 1 : a[property].toLowerCase() < b[property].toLowerCase() ? -1 : 0) as T[]
 }
 
 export default class Profile {

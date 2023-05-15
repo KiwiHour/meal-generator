@@ -6,6 +6,7 @@
     
 </script>
 
+<h2>Add a new recipe</h2>
 <AddRecipe>
 	<GenericFormMessage message={form?.success?.message}/>
 	<GenericFormError error={form?.error}/>

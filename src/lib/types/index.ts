@@ -21,7 +21,18 @@ export type FormProps = {
 	}[]
 }
 
-export enum FormErrors {
+export enum SupabaseErrors {
 	RECIPE_EXISTS = "A recipe with that name already exists",
-	TAG_EXISTS = "A tag with that name already exists"
+	TAG_EXISTS = "A tag with that name already exists",
+	INGREDIENT_EXISTS = "An ingredient with that name already exists",
+	RECIPE_HAS_TAG = "That recipe already has that tag",
+	RECIPE_HAS_INGREDIENT = "That recipe already has that ingredient"
+}
+
+export enum SupabaseSuccess {
+	RECIPE_ADDED = "The recipe was added succesfully",
+	TAG_ADDED = "The tag was added succesfully",
+	INGREDIENT_ADDED = "The ingredient was added successfully",
+	RECIPE_TAGS_ADDED = "The tags were successfully added to the recipe",
+	RECIPE_INGREDIENTS_ADDED = "The ingredients were successfully added to the recipe"
 }

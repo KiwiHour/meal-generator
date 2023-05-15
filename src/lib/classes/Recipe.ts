@@ -1,4 +1,4 @@
-import type { SupabaseSchema } from "$lib/types";
+import { SupabaseErrors, SupabaseSuccess, type SupabaseSchema, type SupabaseTables } from "$lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export default class Profile {
@@ -45,5 +45,39 @@ export default class Profile {
 
 
 	// -- Setters --
+
+	public async addIngredients(ingredientIds: number[]) {
+		let currentIngredientIds = await this.getIngredientIds()
+		let alreadyHasIngredient = currentIngredientIds.some(ingredientId => ingredientIds.includes(ingredientId))
+		if (alreadyHasIngredient)
+			return { error: { message: SupabaseErrors.RECIPE_HAS_INGREDIENT } }
+
+		let values = ingredientIds.map(ingredientId => ({
+			recipe_id: this.id,
+			ingredient_id: ingredientId
+		}))
+
+		let { error } = await this.supabase.from("xref_recipe_ingredients").insert(values)
+		if (error) throw error
+
+		return { success: { message: SupabaseSuccess.RECIPE_INGREDIENTS_ADDED } }
+	}
+	public async addTags(tagIds: number[]) {
+		let currentTagIds = await this.getTagIds()
+		let alreadyHasTag = currentTagIds.some(tagId => tagIds.includes(tagId))
+		if (alreadyHasTag)
+			return { error: { message: SupabaseErrors.RECIPE_HAS_TAG } };
+
+		let values = tagIds.map(tagId => ({
+			recipe_id: this.id,
+			tag_id: tagId
+		}))
+
+		let { error } = await this.supabase.from("xref_recipe_tags").insert(values)
+		if (error) throw error;
+
+		return { success: { message: SupabaseSuccess.RECIPE_TAGS_ADDED } }
+
+	}
 
 }

@@ -7,6 +7,6 @@
 </script>
 
 <AddRecipe>
-	<GenericFormMessage message={form?.successMessage}/>
+	<GenericFormMessage message={form?.success?.message}/>
 	<GenericFormError error={form?.error}/>
 </AddRecipe>

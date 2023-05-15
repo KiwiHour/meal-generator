@@ -5,3 +5,4 @@ export { default as GenericFormMessage } from "./forms/GenericFormMessage.svelte
 export { default as AddRecipe } from "./recipies/AddRecipe.svelte"
 export { default as Loading } from "./Loading.svelte"
 export { default as TagsSelector } from "./tags/TagsSelector.svelte"
+export { default as IngredientsSelector } from "./ingredients/IngredientsSelector.svelte"

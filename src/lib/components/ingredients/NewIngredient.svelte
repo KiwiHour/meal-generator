@@ -6,23 +6,23 @@
 	let name: string;
 	let dispatch = createEventDispatcher()
 
-	async function addTag() {
+	async function addIngredient() {
 		let values = { name }
-		let { error, id } = await $page.data.profile.addTag(values)
+		let { error, id } = await $page.data.profile.addIngredient(values)
 		if (error)
 			// Could handle this error differently, maybe some red text, its flexible yknow
 			alert(error.message);
 		else
-			dispatch("new-tag-added", { newTagId: id as number });
+			dispatch("new-ingredient-added", { newIngredientId: id as number });
 	}
 
 </script>
 
-<div id="new-tag">
+<div id="new-ingredient">
 	<!-- Used a form so that user can press enter to submit -->
 	<!-- Much cleaner than using a on:keypress with some if statements -->
 	<form>
-		<input type="text" id="tag-name" placeholder="New tag name" bind:value={name}>
-		<input type="submit" value="Add tag" on:click={addTag}>
+		<input type="text" id="ingredient-name" placeholder="New ingredient name" bind:value={name}>
+		<input type="submit" value="Add ingredient" on:click={addIngredient}>
 	</form>
 </div>

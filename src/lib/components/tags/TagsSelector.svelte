@@ -1,44 +1,63 @@
 <script lang="ts">
-    import { page } from "$app/stores";
     import { createEventDispatcher } from "svelte";
+    import { page } from "$app/stores";
     import { Loading } from "..";
     import NewTag from "./NewTag.svelte";
-    import { invalidateAll } from "$app/navigation";
+    import { selectedTagIds } from "$store";
 
 	export let selectedIds: number[];
+	// When reload is redefined, the tags will be reloaded, but not the entire page (See on:new-tag-added)
+	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
+	let triggerReload = 0;
 	let newTag = false;
 	let dispatch = createEventDispatcher()
 
 	function handleTagSelect(id: number) {
-		let operator = selectedIds.includes(id) ? "remove" : "add"
-		dispatch(`selector-tag-event`, { tagId: id, operator })
+		selectedTagIds.update(tagIds => {
+			if (tagIds.includes(id))
+				tagIds = tagIds.filter(tagId => tagId != id)
+			else
+				tagIds.push(id)
+
+			return tagIds
+		})
+	}
+
+	function handleNewTag(event: CustomEvent) {
+		selectedTagIds.update(tagIds => {
+			tagIds.push(event.detail.newTagId)
+			return tagIds
+		})
+		newTag = false
+		triggerReload++ 
 	}
 
 </script>
 
 <div id="tag-selector-container">
 
-	{#await $page.data.profile.getTags()}
-		<Loading />
-	{:then tags} 
+	{#key triggerReload}
+		{#await $page.data.profile.getTags()}
+			<Loading />
+		{:then tags} 
 
-		<div id="tags">
-			{#each tags as tag}
-				<input type="button"
-					value={tag.name}
-					class="tag {selectedIds.includes(tag.id) ? 'selected' : ''}"
-					on:click={() => handleTagSelect(tag.id)}>
-			{/each}
-		</div>
+			<div id="tags">
+				{#each tags as tag}
+					<input type="button"
+						value={tag.name}
+						class="tag {selectedIds.includes(tag.id) ? 'selected' : ''}"
+						on:click={() => handleTagSelect(tag.id)}>
+				{/each}
+			</div>
 
-		<div id="new-tag">
 			{#if newTag}
-				<NewTag on:new-tag-added={invalidateAll}/>
+				<NewTag on:new-tag-added={handleNewTag}/>
 			{:else}
 				<input type="button" value="+" on:click={() => newTag = true}>
 			{/if}
-		</div>
-	{/await}
+
+		{/await}
+	{/key}
 
 </div>
 

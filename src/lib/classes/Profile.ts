@@ -1,4 +1,4 @@
-import { type SupabaseTables, type SupabaseSchema, FormErrors } from "$lib/types";
+import { type SupabaseTables, type SupabaseSchema, SupabaseErrors, SupabaseSuccess } from "$lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 function sortAlphabeticallyByProperty<T>(arr: any[], property: string) {
@@ -52,13 +52,13 @@ export default class Profile {
 		let { data: recipies, error } = await this.supabase.from("recipies").select("*");
 		if (error) throw error;
 
-		return recipies ?? [];
+		return sortAlphabeticallyByProperty<SupabaseTables["recipies"]["Row"]>(recipies ?? [], "name");
 	}
 	public async getIngredients() {
 		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*");
 		if (error) throw error;
 
-		return ingredients ?? [];
+		return sortAlphabeticallyByProperty<SupabaseTables["recipe_ingredients"]["Row"]>(ingredients ?? [], "name");
 	}
 	public async getTags() {
 		let { data: tags, error } = await this.supabase.from("recipe_tags").select("*");
@@ -72,22 +72,36 @@ export default class Profile {
 	// Recipe details
 	public async addRecipe(values: Omit<SupabaseTables["recipies"]["Insert"], "user_id">) {
 		if (await this.doesRecipeNameExist(values.name))
-			return { message: FormErrors.RECIPE_EXISTS };
+			return { error: { message: SupabaseErrors.RECIPE_EXISTS } };
 
 		let details = await this.getDetails();
-		let { error } = await this.supabase.from("recipies").insert({ ...values, user_id: details.id })
+		let { data, error } = await this.supabase.from("recipies").insert({ ...values, user_id: details.id }).select().single()
 		if (error) throw error;
+		if (!data) throw new Error("Could not retrieve newly added recipe")
 
-		return { message: `The recipe '${values.name}' was added successfully` }
+		return { success: { message: SupabaseSuccess.RECIPE_ADDED }, id: data.id }
 	}
 	public async addTag(values: Omit<SupabaseTables["recipe_tags"]["Insert"], "user_id">) {
 		if (await this.doesTagExist(values.name))
-			return { message: FormErrors.TAG_EXISTS };
+			return { error: { message: SupabaseErrors.TAG_EXISTS } };
 
 		let details = await this.getDetails();
-		let { error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id })
+		let { data, error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id }).select().single()
 		if (error) throw error;
-		return { message: `The tag '${values.name}' was added successfully` }
+		if (!data) throw new Error("Could not retrieve newly added category")
+
+		return { success: { message: SupabaseSuccess.TAG_ADDED }, id: data.id }
+	}
+	public async addIngredient(values: Omit<SupabaseTables["recipe_ingredients"]["Insert"], "user_id">) {
+		if (await this.doesIngredientExist(values.name))
+			return { error: { message: SupabaseErrors.INGREDIENT_EXISTS } };
+
+		let details = await this.getDetails();
+		let { data, error } = await this.supabase.from("recipe_ingredients").insert({ ...values, user_id: details.id }).select().single()
+		if (error) throw error;
+		if (!data) throw new Error("Could not retrieve newly added ingredient")
+
+		return { success: { message: SupabaseSuccess.INGREDIENT_ADDED }, id: data.id }
 	}
 
 	// -- Validators --
@@ -106,6 +120,13 @@ export default class Profile {
 		let tagNames = tags.map(tag => tag.name.toLowerCase().replace(/\s+/g, ""))
 
 		return tagNames.includes(name.toLowerCase().replace(/\s+/g, ""))
+	}
+	public async doesIngredientExist(name: string) {
+		let ingredients = await this.getIngredients()
+		// Convert to names, lowercase and remove spaces to match easier
+		let ingredientNames = ingredients.map(ingredient => ingredient.name.toLowerCase().replace(/\s+/g, ""))
+
+		return ingredientNames.includes(name.toLowerCase().replace(/\s+/g, ""))
 	}
 
 

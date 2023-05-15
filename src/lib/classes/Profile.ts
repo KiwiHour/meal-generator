@@ -88,7 +88,7 @@ export default class Profile {
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id }).select().single()
 		if (error) throw error;
-		if (!data) throw new Error("Could not retrieve newly added category")
+		if (!data) throw new Error("Could not retrieve newly added tag")
 
 		return { success: { message: SupabaseSuccess.TAG_ADDED }, id: data.id }
 	}

@@ -12,18 +12,21 @@ export interface Database {
       logs: {
         Row: {
           created_at: string
+          details: Json
           id: number
           message: string
           user_id: string | null
         }
         Insert: {
           created_at?: string
+          details?: Json
           id?: number
           message: string
           user_id?: string | null
         }
         Update: {
           created_at?: string
+          details?: Json
           id?: number
           message?: string
           user_id?: string | null

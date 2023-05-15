@@ -6,7 +6,7 @@
     import { selectedTagIds } from "$store";
 
 	export let selectedIds: number[];
-	// When reload is redefined, the tags will be reloaded, but not the entire page (See on:new-tag-added)
+	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page (See on:new-tag-added)
 	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
 	let triggerReload = 0;
 	let newTag = false;

@@ -10,7 +10,7 @@ export const actions: Actions = {
 		if (error) return fail(500, { error: { message: error.message } });
 		if (!data.session) return fail(500, { error: { message: "could not connect to supabase correctly" } })
 
-		await locals.logger.log("login")
+		await locals.logger.log({ message: "login" })
 		throw redirect(303, "/")
 	}
 };

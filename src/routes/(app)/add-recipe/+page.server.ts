@@ -19,8 +19,9 @@ export const actions: Actions = {
 
 		let { error: addRecipeError, id } = await locals.profile.addRecipe(values)
 		if (addRecipeError) return fail(422, { error: addRecipeError })
+		if (!id) throw new Error("Id not assigned correctly to new recipe")
 
-		let recipe = new Recipe(locals.supabase, id as number)
+		let recipe = new Recipe(locals.supabase, id)
 
 		// Add selected tags to the new recipe
 		let tagIds = formData.getAll("tagIds[]").map(tagId => parseInt(tagId as string))
@@ -31,6 +32,13 @@ export const actions: Actions = {
 		let ingredientIds = formData.getAll("ingredientIds[]").map(ingredientId => parseInt(ingredientId as string))
 		let { error: addIngredientsError } = await recipe.addIngredients(ingredientIds)
 		if (addIngredientsError) return fail(422, { error: addIngredientsError })
+
+		await locals.logger.log({
+			message: "newrecipe",
+			details: {
+				recipe: { id: id.toString(), name }
+			}
+		})
 
 		// Not using SupabaseSuccess here since this is a more generic message for
 		// 'Recipe added AND the tags were added AND the ingredients were added'

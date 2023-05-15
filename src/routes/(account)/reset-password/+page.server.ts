@@ -18,7 +18,7 @@ export const actions: Actions = {
 
 		await locals.mailer.sendResetPasswordEmail(email, data.properties.action_link)
 
-		await locals.logger.log(`resetpassword (${email})`)
+		await locals.logger.log({ message: "resetpassword", details: { email } })
 		return { success: true }
 	}
 };

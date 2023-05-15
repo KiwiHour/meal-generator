@@ -11,10 +11,10 @@ export const actions: Actions = {
 		const { data, error } = await locals.supabase.auth.updateUser({ password: newPassword })
 		if (error) return fail(500, { error: { message: error.message } })
 
+		await locals.logger.log({ message: "updatepassword" })
+
 		// Password changed, so user must sign in again
 		await locals.supabase.auth.signOut();
-
-		await locals.logger.log(`updatepassword`)
 		return { success: true }
 
 	}

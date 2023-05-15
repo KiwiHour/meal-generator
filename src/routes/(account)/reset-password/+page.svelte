@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { FormProps } from '$lib/types';
     import type { ActionData } from './$types';
-	import { Error, Form } from '$lib/components';
+	import { GenericFormError, GenericForm } from '$lib/components';
     
     export let form: ActionData;
 
@@ -16,8 +16,8 @@
 </script>
 
 
-<Form params={resetPasswordFormParams} />
-<Error error={form?.error} />
+<GenericForm params={resetPasswordFormParams} />
+<GenericFormError error={form?.error} />
 
 {#if form?.success}
 	<p>Please check your email</p>

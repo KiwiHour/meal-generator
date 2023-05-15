@@ -1,9 +1,10 @@
-import type { SupabaseSchema } from '$lib/types';
+import type { SupabaseSchema } from "$lib/types";
 import { createSupabaseServerClient } from "@supabase/auth-helpers-sveltekit";
-import { PRIVATE_SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
-import { PUBLIC_SUPABASE_URL } from '$env/static/public';
-import { Logger, Mailer, Profile } from '$lib/classes';
-import { redirect, type RequestEvent } from '@sveltejs/kit';
+import { PRIVATE_SUPABASE_SERVICE_ROLE_KEY } from "$env/static/private";
+import { PUBLIC_SUPABASE_URL } from "$env/static/public";
+import { Logger, Profile } from "$lib/classes";
+import { redirect, type Handle, type RequestEvent, type HandleServerError } from "@sveltejs/kit";
+import Mailer from "$lib/classes/Mailer";
 
 const noLoginRoutes = ["/login", "/register", "/reset-password", "/reset-password-confirmation"]
 
@@ -15,7 +16,7 @@ function outputRequest(event: RequestEvent) {
 	console.log(`${method} ${pathname}`)
 }
 
-export async function handle({ event, resolve }) {
+export const handle: Handle = async ({ event, resolve }) => {
 
 	outputRequest(event)
 

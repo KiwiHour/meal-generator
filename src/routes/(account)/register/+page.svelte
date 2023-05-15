@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { FormProps } from "$lib/types";
     import type { ActionData } from "./$types";
-    import { Error, Form } from "$lib/components";
+    import { GenericFormError, GenericForm } from "$lib/components";
 
 	export let form: ActionData;
 
@@ -19,12 +19,12 @@
 	}
 </script>
 
-<Form params={registerFormParams} />
+<GenericForm params={registerFormParams} />
 <p>Already have an account? <a href="/login">Login</a></p>
 
 {#if form?.success}
 	<p>Please check your email inbox</p>
 {/if}
 
-<Error error={form?.error} />
+<GenericFormError error={form?.error} />
 

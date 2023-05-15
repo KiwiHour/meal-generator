@@ -16,6 +16,8 @@ declare global {
 		}
 		interface PageData {
 			session: Session | null;
+			supabase: SupabaseClient<SupabaseSchema>;
+			profile: Profile
 		}
 		// interface Platform {}
 	}

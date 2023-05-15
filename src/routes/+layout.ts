@@ -2,9 +2,7 @@ import type { SupabaseSchema } from '$lib/types';
 import type { LayoutLoad } from './$types';
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { createSupabaseLoadClient } from '@supabase/auth-helpers-sveltekit';
-// Import specific file, rather than from index.ts
-// because index.ts also exports Mailer.ts, which uses a private (server-side) env variable
-import Profile from '$lib/classes/Profile';
+import { Profile } from '$lib/classes';
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
 
@@ -15,8 +13,9 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
 		serverSession: data.session
 	});
 
-	const { data: { session } } = await supabase.auth.getSession();
 	const profile = new Profile(supabase)
+	const { data: { session }, error } = await supabase.auth.getSession();
+	if (error) throw error;
 
-	return { supabase, session, profile };
+	return { supabase, profile, session };
 };

@@ -1,37 +1,112 @@
-import type { SupabaseSchema } from "$lib/types";
+import { type SupabaseTables, type SupabaseSchema, FormErrors } from "$lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+
+function sortAlphabeticallyByProperty<T>(arr: any[], property: string) {
+	return arr.sort((a, b) => a[property] > b[property] ? 1 : a[property] < b[property] ? -1 : 0) as T[]
+}
 
 export default class Profile {
 
 	constructor(private supabase: SupabaseClient<SupabaseSchema>) { }
 
-	// Validators
+	// -- Getters --
 
-
-	// Getters
+	// Profile details
 	private async getDetails() {
 		let { data, error } = await this.supabase.from("profiles").select("*").single();
 		if (error) throw error
+		if (!data) throw new Error("Could not retrieve profile details successfully")
 		return data;
-	}
-	public async getForename() {
-		let details = await this.getDetails();
-		if (!details?.forename) throw new Error("Could not get profile's 'forename'")
-		return details.forename
-	}
-	public async isNew() {
-		let details = await this.getDetails();
-		if (!details?.forename) throw new Error("Could not get profile's 'is_new_profile'")
-		return details?.is_new_profile ?? true // defaults to false if undefined
 	}
 	public async getLogs() {
 		// USERS HAVE THE RIGHT TO SEE THEIR OWN LOGS, DAMNIT!
 		let { data: logs, error } = await this.supabase.from("logs").select("*");
 		if (error) throw error
-		return logs ?? []
+
+		return logs ?? [];
+	}
+	public async getDifficulties() {
+		let { data: difficulties, error } = await this.supabase.from("recipe_difficulties").select("*");
+		if (error) throw error
+
+		// Sort by easiest first
+		return (difficulties ?? []).sort((a, b) => a.value - b.value);
+	}
+	public async getMealTypes() {
+		let { data: mealTypes, error } = await this.supabase.from("meal_types").select("*");
+		if (error) throw error
+
+		return sortAlphabeticallyByProperty<SupabaseTables["meal_types"]["Row"]>(mealTypes ?? [], "name");
+	}
+	public async getForename() {
+		let details = await this.getDetails();
+		return details.forename
+	}
+	public async isNew() {
+		let details = await this.getDetails();
+		return details.is_new_profile ?? false // defaults to false if undefined
 	}
 
+	// Recipe details
+	public async getRecipies() {
+		let { data: recipies, error } = await this.supabase.from("recipies").select("*");
+		if (error) throw error;
 
-	// Setters
+		return recipies ?? [];
+	}
+	public async getIngredients() {
+		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*");
+		if (error) throw error;
+
+		return ingredients ?? [];
+	}
+	public async getTags() {
+		let { data: tags, error } = await this.supabase.from("recipe_tags").select("*");
+		if (error) throw error;
+
+		return sortAlphabeticallyByProperty<SupabaseTables["recipe_tags"]["Row"]>(tags ?? [], "name");
+	}
+
+	// -- Setters --
+
+	// Recipe details
+	public async addRecipe(values: Omit<SupabaseTables["recipies"]["Insert"], "user_id">) {
+		if (await this.doesRecipeNameExist(values.name))
+			return { message: FormErrors.RECIPE_EXISTS };
+
+		let details = await this.getDetails();
+		let { error } = await this.supabase.from("recipies").insert({ ...values, user_id: details.id })
+		if (error) throw error;
+
+		return { message: `The recipe '${values.name}' was added successfully` }
+	}
+	public async addTag(values: Omit<SupabaseTables["recipe_tags"]["Insert"], "user_id">) {
+		if (await this.doesTagExist(values.name))
+			return { message: FormErrors.TAG_EXISTS };
+
+		let details = await this.getDetails();
+		let { error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id })
+		if (error) throw error;
+		return { message: `The tag '${values.name}' was added successfully` }
+	}
+
+	// -- Validators --
+
+	// Recipe details
+	public async doesRecipeNameExist(name: string) {
+		let recipies = await this.getRecipies()
+		// Convert to names, lowercase and remove spaces to match easier
+		let recipeNames = recipies.map(recipe => recipe.name.toLowerCase().replace(/\s+/g, ""))
+
+		return recipeNames.includes(name.toLowerCase().replace(/\s+/g, ""))
+	}
+	public async doesTagExist(name: string) {
+		let tags = await this.getTags()
+		// Convert to names, lowercase and remove spaces to match easier
+		let tagNames = tags.map(tag => tag.name.toLowerCase().replace(/\s+/g, ""))
+
+		return tagNames.includes(name.toLowerCase().replace(/\s+/g, ""))
+	}
+
 
 }

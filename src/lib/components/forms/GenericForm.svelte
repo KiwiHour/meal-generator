@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { FormProps } from "$lib/types";
-
+	
 	export let params: FormProps;
 </script>
 

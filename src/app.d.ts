@@ -8,16 +8,14 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			profile: Profile
-			supabase: SupabaseClient<SupabaseSchema>
-			mailer: Mailer
-			logger: Logger
+			profile: Profile;
+			supabase: SupabaseClient<SupabaseSchema>;
+			mailer: Mailer;
+			logger: Logger;
 			getSession(): Promise<Session | null>;
 		}
 		interface PageData {
-			session: Session | null;
-			supabase: SupabaseClient<SupabaseSchema>;
-			profile: Profile
+
 		}
 		// interface Platform {}
 	}

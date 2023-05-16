@@ -12,8 +12,9 @@ function outputRequest(event: RequestEvent) {
 	// To add extra space so it lines up with POST
 	let method = event.request.method == "GET" ? "GET " : event.request.method
 	let pathname = event.url.pathname
+	let params = event.url.searchParams.toString()
 
-	console.log(`${method} ${pathname}`)
+	console.log(`${method} ${pathname}${params ? "?" + decodeURIComponent(params) : ''}`)
 }
 
 export const handle: Handle = async ({ event, resolve }) => {

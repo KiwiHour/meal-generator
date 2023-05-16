@@ -1,10 +1,7 @@
 <script lang="ts">
 
-	import { page } from "$app/stores"
 	import { createEventDispatcher } from "svelte";
-
-	let name: string;
-	let dispatch = createEventDispatcher()
+	import { page } from "$app/stores"
 
 	async function addTag() {
 		let values = { name }
@@ -15,6 +12,9 @@
 		else
 			dispatch("new-tag-added", { newTagId: id as number });
 	}
+
+	let dispatch = createEventDispatcher()
+	let name: string;
 
 </script>
 

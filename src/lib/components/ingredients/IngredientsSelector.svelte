@@ -1,15 +1,8 @@
 <script lang="ts">
-    import { page } from "$app/stores";
-    import { Loading } from "..";
     import { titleizeString } from "$lib/functions";
     import { selectedIngredientIds } from "$store";
-
-	export let selectedIds: number[];
-	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page (See on:new-tag-added)
-	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
-	let triggerReload = 0;
-	let newIngredient: boolean;
-	let ingredientQuery = "";
+    import { page } from "$app/stores";
+    import { Loading } from "..";
 
 	function handleIngredientSelect(id: number) {
 		selectedIngredientIds.update(ingredientIds => {
@@ -25,7 +18,6 @@
 	function matchesQuery(name: string) {
 		return name.toLowerCase().search(ingredientQuery.toLowerCase()) !== -1
 	}
-
 	function handleNewIngredient(id: number) {
 		newIngredient = false
 		ingredientQuery = ""
@@ -35,7 +27,6 @@
 		})
 		triggerReload++
 	}
-
 	async function addIngredient() {
 		if (confirm(`Add a new ingredient '${ingredientQuery}'?`)) {
 			let { error, id } = await $page.data.profile.addIngredient({ name: ingredientQuery })
@@ -47,6 +38,13 @@
 		}
 	}
 
+	
+	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page (See on:new-tag-added)
+	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
+	export let selectedIds: number[];
+	let newIngredient: boolean;
+	let ingredientQuery = "";
+	let triggerReload = 0;
 
 </script>
 

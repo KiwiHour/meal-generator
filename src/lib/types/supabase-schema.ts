@@ -12,44 +12,24 @@ export interface Database {
       logs: {
         Row: {
           created_at: string
-          details: Json
+          details: Json | null
           id: number
           message: string
           user_id: string | null
         }
         Insert: {
           created_at?: string
-          details?: Json
+          details?: Json | null
           id?: number
           message: string
           user_id?: string | null
         }
         Update: {
           created_at?: string
-          details?: Json
+          details?: Json | null
           id?: number
           message?: string
           user_id?: string | null
-        }
-      }
-      meal_types: {
-        Row: {
-          created_at: string
-          id: number
-          name: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: string
-          user_id?: string
         }
       }
       profiles: {
@@ -93,6 +73,26 @@ export interface Database {
         }
       }
       recipe_ingredients: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          user_id?: string
+        }
+      }
+      recipe_meal_types: {
         Row: {
           created_at: string
           id: number

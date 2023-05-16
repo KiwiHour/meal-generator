@@ -15,7 +15,7 @@ export default class Profile {
 	private async getDetails() {
 		let { data, error } = await this.supabase.from("profiles").select("*").single();
 		if (error) throw error
-		if (!data) throw new Error("Could not retrieve profile details successfully")
+		if (!data) throw new Error("Could not retrieve profile details")
 		return data;
 	}
 	public async getLogs() {
@@ -33,10 +33,10 @@ export default class Profile {
 		return (difficulties ?? []).sort((a, b) => a.value - b.value);
 	}
 	public async getMealTypes() {
-		let { data: mealTypes, error } = await this.supabase.from("meal_types").select("*");
+		let { data: mealTypes, error } = await this.supabase.from("recipe_meal_types").select("*");
 		if (error) throw error
 
-		return sortAlphabeticallyByProperty<SupabaseTables["meal_types"]["Row"]>(mealTypes ?? [], "name");
+		return sortAlphabeticallyByProperty<SupabaseTables["recipe_meal_types"]["Row"]>(mealTypes ?? [], "name");
 	}
 	public async getForename() {
 		let details = await this.getDetails();
@@ -67,7 +67,7 @@ export default class Profile {
 		return sortAlphabeticallyByProperty<SupabaseTables["recipe_tags"]["Row"]>(tags ?? [], "name");
 	}
 
-	// -- Setters --
+	// -- Adders --
 
 	// Recipe details
 	public async addRecipe(values: Omit<SupabaseTables["recipies"]["Insert"], "user_id">) {

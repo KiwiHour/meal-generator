@@ -1,14 +1,8 @@
 <script lang="ts">
-    import { page } from "$app/stores";
-    import { Loading } from "..";
     import { selectedTagIds } from "$store";
     import NewTag from "./NewTag.svelte";
-
-	export let selectedIds: number[];
-	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page (See on:new-tag-added)
-	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
-	let triggerReload = 0;
-	let newTag = false;
+    import { page } from "$app/stores";
+    import { Loading } from "..";
 
 	function handleTagSelect(id: number) {
 		selectedTagIds.update(tagIds => {
@@ -20,7 +14,6 @@
 			return tagIds
 		})
 	}
-
 	function handleNewTag(event: CustomEvent) {
 		selectedTagIds.update(tagIds => {
 			tagIds.push(event.detail.newTagId)
@@ -29,6 +22,12 @@
 		newTag = false
 		triggerReload++ 
 	}
+
+	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page (See on:new-tag-added)
+	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
+	export let selectedIds: number[];
+	let triggerReload = 0;
+	let newTag = false;
 
 </script>
 

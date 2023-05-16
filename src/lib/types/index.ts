@@ -34,5 +34,7 @@ export enum SupabaseSuccess {
 	TAG_ADDED = "The tag was added succesfully",
 	INGREDIENT_ADDED = "The ingredient was added successfully",
 	RECIPE_TAGS_ADDED = "The tags were successfully added to the recipe",
-	RECIPE_INGREDIENTS_ADDED = "The ingredients were successfully added to the recipe"
+	RECIPE_INGREDIENTS_ADDED = "The ingredients were successfully added to the recipe",
+	RECIPE_DELETED = "The recipe was deleted successfully",
+	RECIPE_UPDATED = "The recipe was updated successfully"
 }

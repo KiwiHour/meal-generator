@@ -1,6 +1,17 @@
-import type { SupabaseErrors, StringForm } from "$lib/types";
-import { Recipe } from "$lib/classes";
+import type { PageServerLoad } from "./$types";
+import type { StringForm } from "$lib/types";
+
 import { fail, type Actions } from "@sveltejs/kit";
+import { Recipe } from "$lib/classes";
+
+
+export const load: PageServerLoad = async ({ locals }) => {
+	return {
+		recipies: await locals.profile.getRecipies(),
+		difficulties: await locals.profile.getDifficulties(),
+		mealTypes: await locals.profile.getMealTypes()
+	}
+};
 
 export const actions: Actions = {
 	"add-recipe": async ({ locals, request }) => {

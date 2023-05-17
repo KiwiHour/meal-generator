@@ -1,13 +1,17 @@
 import type { PageServerLoad, Actions } from './$types';
-import type { StringForm } from '$lib/types';
+import { FormSuccess, type StringForm } from '$lib/types';
 import { Recipe } from '$lib/classes';
-import { fail } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
+import { extractRecipeFormData } from '$lib/functions';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	let id = url.searchParams.get("id")
-	if (!id || isNaN(parseInt(id))) throw new Error(`Could not find recipe with id '${id}'`)
+	if (!id || isNaN(parseInt(id)))
+		throw error(422, `query parameter 'id' not set`)
 
 	let recipe = new Recipe(locals.supabase, parseInt(id))
+	if (!await recipe.doesExist())
+		throw error(422, `Could not find recipe with id '${id}'`);
 
 	return {
 		recipe: {
@@ -27,19 +31,29 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 export const actions: Actions = {
 	"update-recipe": async ({ locals, request, url }) => {
 		let formData = await request.formData()
-		let { name, difficultyId, mealTypeId } = Object.fromEntries(formData) as StringForm
+		let { name, difficultyId, mealTypeId, tagIds, ingredientIds } = extractRecipeFormData(formData)
 		let values = {
+			difficulty_id: difficultyId,
+			meal_type_id: mealTypeId,
 			name,
-			difficulty_id: parseInt(difficultyId),
-			meal_type_id: parseInt(mealTypeId)
 		}
 
 		let id = url.searchParams.get("id")
 		if (!id) return fail(422, { error: { message: "Id not found" } })
-		let recipe = new Recipe(locals.supabase, parseInt(id))
-		let { success } = await recipe.update(values)
 
-		return { success }
+		let recipe = new Recipe(locals.supabase, parseInt(id))
+		await recipe.update(values)
+		await recipe.updateTags(tagIds)
+		await recipe.updateIngredients(ingredientIds)
+
+		await locals.logger.log({
+			message: "updaterecipe",
+			details: {
+				recipeId: id.toString()
+			}
+		})
+
+		return { success: { message: FormSuccess.RECIPE_UPDATED } }
 
 	}
 };

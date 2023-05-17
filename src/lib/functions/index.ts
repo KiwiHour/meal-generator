@@ -1,3 +1,7 @@
+import type { StringForm } from "$lib/types"
+import type { PostgrestError } from "@supabase/supabase-js"
+import { error } from "@sveltejs/kit"
+
 export function titleizeWord(word: string) {
 	return word[0].toUpperCase() + word.slice(1)
 }
@@ -23,4 +27,28 @@ export function titleizeString(str: string, mode: "first-word" | "most-words" | 
 	}
 
 	return titleizedWords.join(" ")
+}
+
+export function extractRecipeFormData(formData: FormData) {
+
+	let { name, difficultyId, mealTypeId } = Object.fromEntries(formData) as StringForm
+	let tagIds = formData.getAll("tagIds[]").map(tagId => parseInt(tagId as string))
+	let ingredientIds = formData.getAll("ingredientIds[]").map(ingredientId => parseInt(ingredientId as string))
+
+	return {
+		name, tagIds, ingredientIds,
+		difficultyId: parseInt(difficultyId),
+		mealTypeId: parseInt(mealTypeId)
+	}
+}
+
+
+export function getMethodLocation(clss: object, fn: Function) {
+	return `${clss.constructor.name}.${fn.name}`
+}
+
+export function internalError(err: Error | PostgrestError | string, location?: string, status?: number) {
+	let message = typeof err == "string" ? err : err.message
+
+	return error(status ?? 500, { message, location })
 }

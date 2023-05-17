@@ -1,4 +1,5 @@
-import { type SupabaseTables, type SupabaseSchema, SupabaseErrors, SupabaseSuccess } from "$lib/types";
+import { type SupabaseTables, type SupabaseSchema, FormError, FormSuccess } from "$lib/types";
+import { getMethodLocation, internalError } from "$lib/functions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 function sortAlphabeticallyByProperty<T>(arr: any[], property: string) {
@@ -14,27 +15,37 @@ export default class Profile {
 	// Profile details
 	private async getDetails() {
 		let { data, error } = await this.supabase.from("profiles").select("*").single();
-		if (error) throw error
-		if (!data) throw new Error("Could not retrieve profile details")
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getDetails))
+		if (!data)
+			throw internalError("Could not retrieve profile details", getMethodLocation(this, this.getDetails))
+
 		return data;
 	}
 	public async getLogs() {
 		// USERS HAVE THE RIGHT TO SEE THEIR OWN LOGS, DAMNIT!
 		let { data: logs, error } = await this.supabase.from("logs").select("*");
-		if (error) throw error
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getLogs))
 
 		return logs ?? [];
 	}
 	public async getDifficulties() {
 		let { data: difficulties, error } = await this.supabase.from("recipe_difficulties").select("*");
-		if (error) throw error
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getDifficulties))
 
 		// Sort by easiest first
 		return (difficulties ?? []).sort((a, b) => a.value - b.value);
 	}
 	public async getMealTypes() {
 		let { data: mealTypes, error } = await this.supabase.from("recipe_meal_types").select("*");
-		if (error) throw error
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getMealTypes))
 
 		return sortAlphabeticallyByProperty<SupabaseTables["recipe_meal_types"]["Row"]>(mealTypes ?? [], "name");
 	}
@@ -50,19 +61,25 @@ export default class Profile {
 	// Recipe details
 	public async getRecipies() {
 		let { data: recipies, error } = await this.supabase.from("recipies").select("*");
-		if (error) throw error;
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getRecipies))
 
 		return sortAlphabeticallyByProperty<SupabaseTables["recipies"]["Row"]>(recipies ?? [], "name");
 	}
 	public async getIngredients() {
 		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*");
-		if (error) throw error;
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getIngredients))
 
 		return sortAlphabeticallyByProperty<SupabaseTables["recipe_ingredients"]["Row"]>(ingredients ?? [], "name");
 	}
 	public async getTags() {
 		let { data: tags, error } = await this.supabase.from("recipe_tags").select("*");
-		if (error) throw error;
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getTags))
 
 		return sortAlphabeticallyByProperty<SupabaseTables["recipe_tags"]["Row"]>(tags ?? [], "name");
 	}
@@ -72,36 +89,45 @@ export default class Profile {
 	// Recipe details
 	public async addRecipe(values: Omit<SupabaseTables["recipies"]["Insert"], "user_id">) {
 		if (await this.doesRecipeNameExist(values.name))
-			return { error: { message: SupabaseErrors.RECIPE_EXISTS } };
+			return { error: { message: FormError.RECIPE_EXISTS } };
 
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipies").insert({ ...values, user_id: details.id }).select().single()
-		if (error) throw error;
-		if (!data) throw new Error("Could not retrieve newly added recipe")
 
-		return { success: { message: SupabaseSuccess.RECIPE_ADDED }, id: data.id }
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getDetails))
+		if (!data)
+			throw internalError("Could not retrieve newly added recipe", getMethodLocation(this, this.getDetails))
+
+		return { success: { message: FormSuccess.RECIPE_ADDED }, id: data.id }
 	}
 	public async addTag(values: Omit<SupabaseTables["recipe_tags"]["Insert"], "user_id">) {
 		if (await this.doesTagExist(values.name))
-			return { error: { message: SupabaseErrors.TAG_EXISTS } };
+			return { error: { message: FormError.TAG_EXISTS } };
 
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id }).select().single()
-		if (error) throw error;
-		if (!data) throw new Error("Could not retrieve newly added tag")
 
-		return { success: { message: SupabaseSuccess.TAG_ADDED }, id: data.id }
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.addTag))
+		if (!data)
+			throw internalError("Could not retrieve newly added tag", getMethodLocation(this, this.addTag))
+
+		return { success: { message: FormSuccess.TAG_ADDED }, id: data.id }
 	}
 	public async addIngredient(values: Omit<SupabaseTables["recipe_ingredients"]["Insert"], "user_id">) {
 		if (await this.doesIngredientExist(values.name))
-			return { error: { message: SupabaseErrors.INGREDIENT_EXISTS } };
+			return { error: { message: FormError.INGREDIENT_EXISTS } };
 
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipe_ingredients").insert({ ...values, user_id: details.id }).select().single()
-		if (error) throw error;
-		if (!data) throw new Error("Could not retrieve newly added ingredient")
 
-		return { success: { message: SupabaseSuccess.INGREDIENT_ADDED }, id: data.id }
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.addIngredient))
+		if (!data)
+			throw internalError("Could not retrieve newly added ingredient", getMethodLocation(this, this.addIngredient))
+
+		return { success: { message: FormSuccess.INGREDIENT_ADDED }, id: data.id }
 	}
 
 	// -- Validators --

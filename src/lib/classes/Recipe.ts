@@ -1,4 +1,5 @@
-import { SupabaseErrors, SupabaseSuccess, type SupabaseSchema, type SupabaseTables } from "$lib/types";
+import { FormError, FormSuccess, type SupabaseSchema, type SupabaseTables } from "$lib/types";
+import { getMethodLocation, internalError } from "$lib/functions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export default class Profile {
@@ -9,14 +10,20 @@ export default class Profile {
 
 	private async getDetails() {
 		let { data, error } = await this.supabase.from("recipies").select("*").eq("id", this.id).single();
-		if (error) throw error
-		if (!data) throw new Error("Could not retrieve recipe details successfully")
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getDetails))
+		if (!data)
+			throw internalError("Could not retrieve recipe details successfully", getMethodLocation(this, this.getDetails))
+
 		return data;
 	}
 
 	private async getIngredientIds() {
 		let { data: recipies, error } = await this.supabase.from("xref_recipe_ingredients").select("ingredient_id").eq("recipe_id", this.id);
-		if (error) throw error;
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getIngredientIds))
 
 		// Default to empty array if none are found
 		recipies = recipies ?? []
@@ -26,7 +33,9 @@ export default class Profile {
 	}
 	private async getTagIds() {
 		let { data: recipies, error } = await this.supabase.from("xref_recipe_tags").select("tag_id").eq("recipe_id", this.id);
-		if (error) throw error;
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getTagIds))
 
 		// Default to empty array if none are found
 		recipies = recipies ?? []
@@ -42,30 +51,40 @@ export default class Profile {
 	public async getDifficulty() {
 		let details = await this.getDetails()
 		let { data: difficulty, error } = await this.supabase.from("recipe_difficulties").select("*").eq("id", details.difficulty_id).single()
-		if (error) throw error
-		if (!difficulty) throw new Error("Could not retrieve recipe's difficulty")
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getDifficulty))
+		if (!difficulty)
+			throw internalError("Could not retrieve recipe's difficulty", getMethodLocation(this, this.getDifficulty))
 
 		return difficulty
 	}
 	public async getMealType() {
 		let details = await this.getDetails()
 		let { data: mealType, error } = await this.supabase.from("recipe_meal_types").select("*").eq("id", details.meal_type_id).single()
-		if (error) throw error
-		if (!mealType) throw new Error("Could not retrieve recipe's meal type")
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getMealType))
+		if (!mealType)
+			throw internalError("Could not retrieve recipe's meal type", getMethodLocation(this, this.getMealType))
 
 		return mealType
 	}
 	public async getIngredients() {
 		let ingredientIds = await this.getIngredientIds()
-		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*").in("id", ingredientIds)
-		if (error) throw error;
+		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*").in("ids", ingredientIds)
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getIngredients))
 
 		return ingredients ?? [];
 	}
 	public async getTags() {
 		let tagIds = await this.getTagIds()
 		let { data: tags, error } = await this.supabase.from("recipe_tags").select("*").in("id", tagIds)
-		if (error) throw error;
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.getTags))
 
 		return tags ?? [];
 	}
@@ -77,7 +96,7 @@ export default class Profile {
 		let currentIngredientIds = await this.getIngredientIds()
 		let alreadyHasIngredient = currentIngredientIds.some(ingredientId => ingredientIds.includes(ingredientId))
 		if (alreadyHasIngredient)
-			return { error: { message: SupabaseErrors.RECIPE_HAS_INGREDIENT } }
+			return { error: { message: FormError.RECIPE_HAS_INGREDIENT } }
 
 		let values = ingredientIds.map(ingredientId => ({
 			recipe_id: this.id,
@@ -85,15 +104,17 @@ export default class Profile {
 		}))
 
 		let { error } = await this.supabase.from("xref_recipe_ingredients").insert(values)
-		if (error) throw error
 
-		return { success: { message: SupabaseSuccess.RECIPE_INGREDIENTS_ADDED } }
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.addIngredients))
+
+		return { success: { message: FormSuccess.RECIPE_INGREDIENTS_ADDED } }
 	}
 	public async addTags(tagIds: number[]) {
 		let currentTagIds = await this.getTagIds()
 		let alreadyHasTag = currentTagIds.some(tagId => tagIds.includes(tagId))
 		if (alreadyHasTag)
-			return { error: { message: SupabaseErrors.RECIPE_HAS_TAG } };
+			return { error: { message: FormError.RECIPE_HAS_TAG } };
 
 		let values = tagIds.map(tagId => ({
 			recipe_id: this.id,
@@ -101,9 +122,11 @@ export default class Profile {
 		}))
 
 		let { error } = await this.supabase.from("xref_recipe_tags").insert(values)
-		if (error) throw error;
 
-		return { success: { message: SupabaseSuccess.RECIPE_TAGS_ADDED } }
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.addTags))
+
+		return { success: { message: FormSuccess.RECIPE_TAGS_ADDED } }
 
 	}
 
@@ -111,19 +134,52 @@ export default class Profile {
 
 	public async update(values: SupabaseTables["recipies"]["Update"]) {
 		let { error } = await this.supabase.from("recipies").update(values).eq("id", this.id)
-		if (error) throw error
 
-		return { success: { message: SupabaseSuccess.RECIPE_UPDATED } }
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.update))
+
+		return { success: { message: FormSuccess.RECIPE_UPDATED } }
 	}
+	public async updateIngredients(ingredientIds: number[]) {
+		let { error: deleteIngredientsError } = await this.supabase.from("xref_recipe_ingredients").delete().eq("recipe_id", this.id)
+		if (deleteIngredientsError)
+			throw internalError(deleteIngredientsError, getMethodLocation(this, this.updateIngredients));
 
-	// TODO: Add updaters for recipe tags and ingredients (need to modify xref table)
+		let { error: addIngredientsError } = await this.addIngredients(ingredientIds)
+		if (addIngredientsError)
+			throw internalError(addIngredientsError.message, getMethodLocation(this, this.updateIngredients));
+
+		return { success: { message: FormSuccess.RECIPE_INGREDIENTS_UPDATED } }
+	}
+	public async updateTags(tagIds: number[]) {
+		let { error: deleteTagsError } = await this.supabase.from("xref_recipe_tags").delete().eq("recipe_id", this.id)
+		if (deleteTagsError)
+			throw internalError(deleteTagsError, getMethodLocation(this, this.updateTags));
+
+		let { error: addTagsError } = await this.addTags(tagIds)
+		if (addTagsError)
+			throw internalError(addTagsError.message, getMethodLocation(this, this.updateTags));
+
+		return { success: { message: FormSuccess.RECIPE_TAGS_UPDATED } }
+	}
 
 	// -- Deleters --
 
 	public async delete() {
 		let { error } = await this.supabase.from("recipies").delete().eq("id", this.id)
-		if (error) throw error
-		return { success: { message: SupabaseSuccess.RECIPE_DELETED } }
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.delete))
+
+		return { success: { message: FormSuccess.RECIPE_DELETED } }
+	}
+
+	// -- Validators --
+
+	public async doesExist() {
+		let { data, error } = await this.supabase.from("recipies").select("*").eq("id", this.id).single();
+		if (error || !data) return false;
+		else return true;
 	}
 
 }

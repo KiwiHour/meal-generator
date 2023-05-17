@@ -6,7 +6,10 @@ import type { Session, SupabaseClient } from "@supabase/supabase-js";
 // for information about these interfaces
 declare global {
 	namespace App {
-		// interface Error {}
+		interface Error {
+			message: string;
+			location?: string;
+		}
 		interface Locals {
 			profile: Profile;
 			supabase: SupabaseClient<SupabaseSchema>;

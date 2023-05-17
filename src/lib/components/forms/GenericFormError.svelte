@@ -1,7 +1,5 @@
-<script lang="ts">
-    import type { FormError } from "$lib/types";
-	
-	export let error: FormError | undefined;
+<script lang="ts">	
+	export let error: { message: string } | undefined;
 </script>
 
 {#if error}

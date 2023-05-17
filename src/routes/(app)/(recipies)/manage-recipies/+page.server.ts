@@ -2,6 +2,7 @@ import type { PageServerLoad } from "./$types";
 import type { StringForm } from "$lib/types";
 
 import { fail, type Actions } from "@sveltejs/kit";
+import { internalError } from "$lib/functions";
 import { Recipe } from "$lib/classes";
 
 
@@ -30,7 +31,8 @@ export const actions: Actions = {
 
 		let { error: addRecipeError, id } = await locals.profile.addRecipe(values)
 		if (addRecipeError) return fail(422, { error: addRecipeError })
-		if (!id) throw new Error("Id not assigned correctly to new recipe")
+		if (!id)
+			throw internalError("Id not assigned correctly to new recipe", "POST /add-recipe")
 
 		let recipe = new Recipe(locals.supabase, id)
 
@@ -47,11 +49,11 @@ export const actions: Actions = {
 		await locals.logger.log({
 			message: "newrecipe",
 			details: {
-				recipe: { id: id.toString(), name }
+				recipeId: id.toString()
 			}
 		})
 
-		// Not using SupabaseSuccess here since this is a more generic message for
+		// Not using FormSuccess here since this is a more generic message for
 		// 'Recipe added AND the tags were added AND the ingredients were added'
 		// All this extra behind-the-scenes stuff is expected by the user, so a generic success message is better
 		return { success: { message: "Recipe added successfully" } }

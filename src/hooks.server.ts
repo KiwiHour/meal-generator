@@ -33,7 +33,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	};
 
 	event.locals.profile = new Profile(event.locals.supabase)
-	event.locals.logger = new Logger(event.locals.supabase, event.locals.getSession)
+	event.locals.logger = new Logger(event.locals.supabase)
 	event.locals.mailer = new Mailer()
 
 	// Authentication

@@ -34,7 +34,6 @@
 	export let tagIds: number[] = []
 	export let formAction: string;
 	export let name: string = "";
-	export let id: number = -1;
 	let dispatch = createEventDispatcher()
 	let openMenus: MenuName[] = []
 	
@@ -54,9 +53,6 @@
 	<form action={formAction} method="post" use:enhance={() => afterSubmit}>
 		<input type="text" id="name" name="name" placeholder="Recipe name" value={name} required/>
 
-		{#if id != -1}
-			<input type="hidden" name="id" value={id}>
-		{/if}
 		<select name="difficultyId" id="difficulty">
 			<option value="-1">Select difficulty</option>
 			{#each difficulties as difficulty}

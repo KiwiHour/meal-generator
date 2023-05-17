@@ -2,7 +2,7 @@
 
 	import type { ActionData, PageData } from "./$types";
     import { GenericFormError, GenericFormMessage, RecipeForm } from "$lib/components";
-    import DeleteRecipe from "$lib/components/recipies/DeleteRecipe.svelte";
+    import DeleteRecipe from "$lib/components/recipes/DeleteRecipe.svelte";
     import { goto, invalidateAll } from "$app/navigation";
 	
 	export let form: ActionData
@@ -11,7 +11,7 @@
 
 </script>
 
-<a href="/manage-recipies">Manage your other recipies</a>
+<a href="/manage-recipes">Manage your other recipes</a>
 {#key data}
 	<div id="recipe-container">
 		<h2>Update recipe</h2>
@@ -27,7 +27,7 @@
 			formAction={`?/update-recipe&id=${recipe.id}`}
 		>
 
-			<DeleteRecipe on:recipe-delete={() => goto("/manage-recipies")} id={recipe.id} />
+			<DeleteRecipe on:recipe-delete={() => goto("/manage-recipes")} id={recipe.id} />
 			<GenericFormMessage message={form?.success?.message}/>
 			<GenericFormError error={form?.error}/>
 

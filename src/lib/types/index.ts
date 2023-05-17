@@ -34,6 +34,6 @@ export enum FormSuccess {
 	RECIPE_INGREDIENTS_ADDED = "The ingredients were successfully added to the recipe",
 	RECIPE_DELETED = "The recipe was deleted successfully",
 	RECIPE_UPDATED = "The recipe was updated successfully",
-	RECIPE_INGREDIENTS_UPDATED = "The recipie's ingredients were successfully updated",
-	RECIPE_TAGS_UPDATED = "The recipie's tags were successfully updated",
+	RECIPE_INGREDIENTS_UPDATED = "The recipe's ingredients were successfully updated",
+	RECIPE_TAGS_UPDATED = "The recipe's tags were successfully updated",
 }

@@ -59,13 +59,13 @@ export default class Profile {
 	}
 
 	// Recipe details
-	public async getRecipies() {
-		let { data: recipies, error } = await this.supabase.from("recipies").select("*");
+	public async getRecipes() {
+		let { data: recipes, error } = await this.supabase.from("recipes").select("*");
 
 		if (error)
-			throw internalError(error, getMethodLocation(this, this.getRecipies))
+			throw internalError(error, getMethodLocation(this, this.getRecipes))
 
-		return sortAlphabeticallyByProperty<SupabaseTables["recipies"]["Row"]>(recipies ?? [], "name");
+		return sortAlphabeticallyByProperty<SupabaseTables["recipes"]["Row"]>(recipes ?? [], "name");
 	}
 	public async getIngredients() {
 		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*");
@@ -87,12 +87,12 @@ export default class Profile {
 	// -- Adders --
 
 	// Recipe details
-	public async addRecipe(values: Omit<SupabaseTables["recipies"]["Insert"], "user_id">) {
+	public async addRecipe(values: Omit<SupabaseTables["recipes"]["Insert"], "user_id">) {
 		if (await this.doesRecipeNameExist(values.name))
 			return { error: { message: FormError.RECIPE_EXISTS } };
 
 		let details = await this.getDetails();
-		let { data, error } = await this.supabase.from("recipies").insert({ ...values, user_id: details.id }).select().single()
+		let { data, error } = await this.supabase.from("recipes").insert({ ...values, user_id: details.id }).select().single()
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.addRecipe))
@@ -134,9 +134,9 @@ export default class Profile {
 
 	// Recipe details
 	public async doesRecipeNameExist(name: string) {
-		let recipies = await this.getRecipies()
+		let recipes = await this.getRecipes()
 		// Convert to names, lowercase and remove spaces to match easier
-		let recipeNames = recipies.map(recipe => recipe.name.toLowerCase().replace(/\s+/g, ""))
+		let recipeNames = recipes.map(recipe => recipe.name.toLowerCase().replace(/\s+/g, ""))
 
 		return recipeNames.includes(name.toLowerCase().replace(/\s+/g, ""))
 	}

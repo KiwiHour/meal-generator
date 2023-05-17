@@ -2,11 +2,11 @@
     import type { SupabaseTables } from "$lib/types";
     import DeleteRecipe from "./DeleteRecipe.svelte";
 	
-	export let recipies: SupabaseTables["recipies"]["Row"][];
+	export let recipes: SupabaseTables["recipes"]["Row"][];
 </script>
 
 <div id="recipe-list">
-	{#each recipies as recipe}
+	{#each recipes as recipe}
 		<div class="recipe">
 			<p>{recipe.name}</p>
 			<a href="/manage-recipe?id={recipe.id}">Manage recipe</a>

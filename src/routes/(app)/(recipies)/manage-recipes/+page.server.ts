@@ -8,7 +8,7 @@ import { Recipe } from "$lib/classes";
 
 export const load: PageServerLoad = async ({ locals }) => {
 	return {
-		recipies: await locals.profile.getRecipies(),
+		recipes: await locals.profile.getRecipes(),
 		difficulties: await locals.profile.getDifficulties(),
 		mealTypes: await locals.profile.getMealTypes()
 	}

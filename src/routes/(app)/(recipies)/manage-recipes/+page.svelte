@@ -7,7 +7,7 @@
 	export let data: PageData
 
 	// Define reactively so page is refreshed on invalidateAll
-	$: ({ recipies, difficulties, mealTypes } = data)
+	$: ({ recipes, difficulties, mealTypes } = data)
 </script>
 
 <h2>Add a new recipe</h2>
@@ -21,5 +21,5 @@
 	<GenericFormError error={form?.error}/>
 </RecipeForm>
 
-<h2>Your recipies</h2>
-<RecipeList on:recipe-delete={invalidateAll} {recipies} />
+<h2>Your recipes</h2>
+<RecipeList on:recipe-delete={invalidateAll} {recipes} />

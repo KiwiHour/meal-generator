@@ -2,14 +2,14 @@ import { FormError, FormSuccess, type SupabaseSchema, type SupabaseTables } from
 import { getMethodLocation, internalError } from "$lib/functions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export default class Profile {
+export default class Recipe {
 
 	constructor(private supabase: SupabaseClient<SupabaseSchema>, public id: number) { }
 
 	// -- Getters --
 
 	private async getDetails() {
-		let { data, error } = await this.supabase.from("recipies").select("*").eq("id", this.id).single();
+		let { data, error } = await this.supabase.from("recipes").select("*").eq("id", this.id).single();
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.getDetails))
@@ -20,28 +20,28 @@ export default class Profile {
 	}
 
 	private async getIngredientIds() {
-		let { data: recipies, error } = await this.supabase.from("xref_recipe_ingredients").select("ingredient_id").eq("recipe_id", this.id);
+		let { data: recipes, error } = await this.supabase.from("xref_recipe_ingredients").select("ingredient_id").eq("recipe_id", this.id);
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.getIngredientIds))
 
 		// Default to empty array if none are found
-		recipies = recipies ?? []
+		recipes = recipes ?? []
 
 		// Map into array of ingredient ids
-		return recipies.map(recipe => recipe.ingredient_id)
+		return recipes.map(recipe => recipe.ingredient_id)
 	}
 	private async getTagIds() {
-		let { data: recipies, error } = await this.supabase.from("xref_recipe_tags").select("tag_id").eq("recipe_id", this.id);
+		let { data: recipes, error } = await this.supabase.from("xref_recipe_tags").select("tag_id").eq("recipe_id", this.id);
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.getTagIds))
 
 		// Default to empty array if none are found
-		recipies = recipies ?? []
+		recipes = recipes ?? []
 
 		// Map into array of ingredient ids
-		return recipies.map(recipe => recipe.tag_id)
+		return recipes.map(recipe => recipe.tag_id)
 	}
 
 	public async getName() {
@@ -72,7 +72,7 @@ export default class Profile {
 	}
 	public async getIngredients() {
 		let ingredientIds = await this.getIngredientIds()
-		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*").in("ids", ingredientIds)
+		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*").in("id", ingredientIds)
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.getIngredients))
@@ -88,7 +88,6 @@ export default class Profile {
 
 		return tags ?? [];
 	}
-
 
 	// -- Adders --
 
@@ -132,8 +131,8 @@ export default class Profile {
 
 	// -- Updaters --
 
-	public async update(values: SupabaseTables["recipies"]["Update"]) {
-		let { error } = await this.supabase.from("recipies").update(values).eq("id", this.id)
+	public async update(values: SupabaseTables["recipes"]["Update"]) {
+		let { error } = await this.supabase.from("recipes").update(values).eq("id", this.id)
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.update))
@@ -166,7 +165,7 @@ export default class Profile {
 	// -- Deleters --
 
 	public async delete() {
-		let { error } = await this.supabase.from("recipies").delete().eq("id", this.id)
+		let { error } = await this.supabase.from("recipes").delete().eq("id", this.id)
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.delete))
@@ -177,7 +176,7 @@ export default class Profile {
 	// -- Validators --
 
 	public async doesExist() {
-		let { data, error } = await this.supabase.from("recipies").select("*").eq("id", this.id).single();
+		let { data, error } = await this.supabase.from("recipes").select("*").eq("id", this.id).single();
 		if (error || !data) return false;
 		else return true;
 	}

@@ -1,8 +1,6 @@
 import type { PageServerLoad } from "./$types";
-import type { StringForm } from "$lib/types";
-
 import { fail, type Actions } from "@sveltejs/kit";
-import { internalError } from "$lib/functions";
+import { extractRecipeFormData, internalError } from "$lib/functions";
 import { Recipe } from "$lib/classes";
 
 
@@ -17,11 +15,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	"add-recipe": async ({ locals, request }) => {
 		let formData = await request.formData()
-		let { name, difficultyId, mealTypeId } = Object.fromEntries(formData) as StringForm
+		let { name, difficultyId, mealTypeId, tagIds, ingredientIds } = extractRecipeFormData(formData)
 		let values = {
+			difficulty_id: difficultyId,
+			meal_type_id: mealTypeId,
 			name,
-			difficulty_id: parseInt(difficultyId),
-			meal_type_id: parseInt(mealTypeId)
 		}
 
 		// Ensure user entered all values
@@ -37,12 +35,10 @@ export const actions: Actions = {
 		let recipe = new Recipe(locals.supabase, id)
 
 		// Add selected tags to the new recipe
-		let tagIds = formData.getAll("tagIds[]").map(tagId => parseInt(tagId as string))
 		let { error: addTagsError } = await recipe.addTags(tagIds)
 		if (addTagsError) return fail(422, { error: addTagsError })
 
 		// Add selected ingredients to the new recipe
-		let ingredientIds = formData.getAll("ingredientIds[]").map(ingredientId => parseInt(ingredientId as string))
 		let { error: addIngredientsError } = await recipe.addIngredients(ingredientIds)
 		if (addIngredientsError) return fail(422, { error: addIngredientsError })
 

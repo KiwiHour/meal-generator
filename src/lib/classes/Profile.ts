@@ -95,9 +95,9 @@ export default class Profile {
 		let { data, error } = await this.supabase.from("recipies").insert({ ...values, user_id: details.id }).select().single()
 
 		if (error)
-			throw internalError(error, getMethodLocation(this, this.getDetails))
+			throw internalError(error, getMethodLocation(this, this.addRecipe))
 		if (!data)
-			throw internalError("Could not retrieve newly added recipe", getMethodLocation(this, this.getDetails))
+			throw internalError("Could not retrieve newly added recipe", getMethodLocation(this, this.addRecipe))
 
 		return { success: { message: FormSuccess.RECIPE_ADDED }, id: data.id }
 	}

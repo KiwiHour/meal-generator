@@ -89,7 +89,7 @@ export default class Profile {
 	// Recipe details
 	public async addRecipe(values: Omit<SupabaseTables["recipes"]["Insert"], "user_id">) {
 		if (await this.doesRecipeNameExist(values.name))
-			return { error: { message: FormError.RECIPE_EXISTS } };
+			return { error: { message: FormError.Recipe.EXISTS } };
 
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipes").insert({ ...values, user_id: details.id }).select().single()
@@ -99,11 +99,11 @@ export default class Profile {
 		if (!data)
 			throw internalError("Could not retrieve newly added recipe", getMethodLocation(this, this.addRecipe))
 
-		return { success: { message: FormSuccess.RECIPE_ADDED }, id: data.id }
+		return { success: { message: FormSuccess.Recipe.ADDED }, id: data.id }
 	}
 	public async addTag(values: Omit<SupabaseTables["recipe_tags"]["Insert"], "user_id">) {
 		if (await this.doesTagExist(values.name))
-			return { error: { message: FormError.TAG_EXISTS } };
+			return { error: { message: FormError.Tag.EXISTS } };
 
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id }).select().single()
@@ -113,11 +113,11 @@ export default class Profile {
 		if (!data)
 			throw internalError("Could not retrieve newly added tag", getMethodLocation(this, this.addTag))
 
-		return { success: { message: FormSuccess.TAG_ADDED }, id: data.id }
+		return { success: { message: FormSuccess.Tag.ADDED }, id: data.id }
 	}
 	public async addIngredient(values: Omit<SupabaseTables["recipe_ingredients"]["Insert"], "user_id">) {
 		if (await this.doesIngredientExist(values.name))
-			return { error: { message: FormError.INGREDIENT_EXISTS } };
+			return { error: { message: FormError.Ingredient.EXISTS } };
 
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipe_ingredients").insert({ ...values, user_id: details.id }).select().single()
@@ -127,7 +127,7 @@ export default class Profile {
 		if (!data)
 			throw internalError("Could not retrieve newly added ingredient", getMethodLocation(this, this.addIngredient))
 
-		return { success: { message: FormSuccess.INGREDIENT_ADDED }, id: data.id }
+		return { success: { message: FormSuccess.Ingredient.ADDED }, id: data.id }
 	}
 
 	// -- Validators --

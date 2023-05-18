@@ -53,7 +53,7 @@ export const actions: Actions = {
 			}
 		})
 
-		return { success: { message: FormSuccess.RECIPE_UPDATED } }
+		return { success: { message: FormSuccess.Recipe.UPDATED } }
 
 	}
 };

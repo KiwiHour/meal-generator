@@ -95,7 +95,7 @@ export default class Recipe {
 		let currentIngredientIds = await this.getIngredientIds()
 		let alreadyHasIngredient = currentIngredientIds.some(ingredientId => ingredientIds.includes(ingredientId))
 		if (alreadyHasIngredient)
-			return { error: { message: FormError.RECIPE_HAS_INGREDIENT } }
+			return { error: { message: FormError.Recipe.HAS_INGREDIENT } }
 
 		let values = ingredientIds.map(ingredientId => ({
 			recipe_id: this.id,
@@ -107,13 +107,13 @@ export default class Recipe {
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.addIngredients))
 
-		return { success: { message: FormSuccess.RECIPE_INGREDIENTS_ADDED } }
+		return { success: { message: FormSuccess.Recipe.INGREDIENTS_ADDED } }
 	}
 	public async addTags(tagIds: number[]) {
 		let currentTagIds = await this.getTagIds()
 		let alreadyHasTag = currentTagIds.some(tagId => tagIds.includes(tagId))
 		if (alreadyHasTag)
-			return { error: { message: FormError.RECIPE_HAS_TAG } };
+			return { error: { message: FormError.Recipe.HAS_TAG } };
 
 		let values = tagIds.map(tagId => ({
 			recipe_id: this.id,
@@ -125,7 +125,7 @@ export default class Recipe {
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.addTags))
 
-		return { success: { message: FormSuccess.RECIPE_TAGS_ADDED } }
+		return { success: { message: FormSuccess.Recipe.TAGS_ADDED } }
 
 	}
 
@@ -137,7 +137,7 @@ export default class Recipe {
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.update))
 
-		return { success: { message: FormSuccess.RECIPE_UPDATED } }
+		return { success: { message: FormSuccess.Recipe.UPDATED } }
 	}
 	public async updateIngredients(ingredientIds: number[]) {
 		let { error: deleteIngredientsError } = await this.supabase.from("xref_recipe_ingredients").delete().eq("recipe_id", this.id)
@@ -148,7 +148,7 @@ export default class Recipe {
 		if (addIngredientsError)
 			throw internalError(addIngredientsError.message, getMethodLocation(this, this.updateIngredients));
 
-		return { success: { message: FormSuccess.RECIPE_INGREDIENTS_UPDATED } }
+		return { success: { message: FormSuccess.Recipe.INGREDIENTS_UPDATED } }
 	}
 	public async updateTags(tagIds: number[]) {
 		let { error: deleteTagsError } = await this.supabase.from("xref_recipe_tags").delete().eq("recipe_id", this.id)
@@ -159,7 +159,7 @@ export default class Recipe {
 		if (addTagsError)
 			throw internalError(addTagsError.message, getMethodLocation(this, this.updateTags));
 
-		return { success: { message: FormSuccess.RECIPE_TAGS_UPDATED } }
+		return { success: { message: FormSuccess.Recipe.TAGS_UPDATED } }
 	}
 
 	// -- Deleters --
@@ -170,7 +170,7 @@ export default class Recipe {
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.delete))
 
-		return { success: { message: FormSuccess.RECIPE_DELETED } }
+		return { success: { message: FormSuccess.Recipe.DELETED } }
 	}
 
 	// -- Validators --

@@ -22,6 +22,9 @@
 		newTag = false
 		triggerReload++ 
 	}
+	async function clearSelectedTags() {
+		selectedTagIds.update(_ => [])
+	}
 
 	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page
 	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
@@ -52,6 +55,7 @@
 			{:else}
 				<input id="new-tag-btn" type="button" value="+" on:click={() => newTag = true}>
 			{/if}
+			<input type="button" id="clear-selected-tags-btn" value="Clear" on:click={clearSelectedTags}>
 
 		{/await}
 	{/key}

@@ -1,6 +1,17 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-    import { error } from "@sveltejs/kit";
+    import { onMount } from "svelte";
+
+	onMount(async () => {
+		// If no error, the details are null
+		// But if there is an error, details is { error: <TheError> }
+		// This way an empty object isnt added to the DB
+		// just "null" is better than { error: null }, much more consistent with rest of logs
+		let details = $page.error ? { error: $page.error } : null;
+		await $page.data.logger.log({
+			message: "error", details
+		})
+	})
 
 </script>
 

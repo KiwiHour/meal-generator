@@ -1,9 +1,11 @@
 import type { SupabaseSchema } from "$lib/types";
+import type { Handle, RequestEvent } from "@sveltejs/kit"
+
 import { createSupabaseServerClient } from "@supabase/auth-helpers-sveltekit";
 import { PRIVATE_SUPABASE_SERVICE_ROLE_KEY } from "$env/static/private";
 import { PUBLIC_SUPABASE_URL } from "$env/static/public";
 import { Logger, Profile } from "$lib/classes";
-import { redirect, type Handle, type RequestEvent, type HandleServerError } from "@sveltejs/kit";
+import { redirect } from "@sveltejs/kit";
 import Mailer from "$lib/classes/Mailer";
 
 const noLoginRoutes = ["/login", "/register", "/reset-password", "/reset-password-confirmation"]

@@ -40,7 +40,7 @@
 		selectedIngredientIds.update(_ => [])
 	}
 
-	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page (See on:new-tag-added)
+	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page
 	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
 	export let selectedIds: number[];
 	let newIngredient: boolean;
@@ -52,7 +52,7 @@
 <div id="ingredient-selector-container">
 
 	<!-- Outside of await block, as it's not required to have any of the information -->
-	<form>
+	<form on:submit|preventDefault>
 		<input type="search" id="ingredient-search" bind:value={ingredientQuery} placeholder="Search or add ingredients" autocomplete="off">
 		<input type="submit" id="new-ingredient-btn" value="+" on:click={addIngredient}>
 		<input type="button" id="clear-selected-ingredients-btn" value="Clear" on:click={clearSelectedIngredients}>

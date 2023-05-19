@@ -21,7 +21,7 @@
 <div id="new-tag">
 	<!-- Used a form so that user can press enter to submit -->
 	<!-- Much cleaner than using a on:keypress with some if statements -->
-	<form>
+	<form on:submit|preventDefault>
 		<input type="text" id="tag-name" placeholder="New tag name" bind:value={name}>
 		<input type="submit" value="Add tag" on:click={addTag}>
 	</form>

@@ -23,7 +23,7 @@
 		triggerReload++ 
 	}
 
-	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page (See on:new-tag-added)
+	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page
 	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
 	export let selectedIds: number[];
 	let triggerReload = 0;

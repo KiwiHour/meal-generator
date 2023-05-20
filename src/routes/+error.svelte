@@ -9,7 +9,12 @@
 		// just "null" is better than { error: null }, much more consistent with rest of logs
 		let details = $page.error ? { error: $page.error } : null;
 		await $page.data.logger.log({
-			message: "error", details
+			message: "error",
+			details: {
+				...details,
+				route: $page.url.pathname,
+				href: $page.url.href
+			}
 		})
 	})
 

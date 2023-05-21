@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { RecipeForm, GenericFormMessage, GenericFormError, RecipeList } from "$lib/components";
+	import { RecipeForm, GenericFormMessage, GenericFormError, RecipeList, SearchRecipes } from "$lib/components";
     import type { ActionData, PageData } from "./$types";
     import { invalidateAll } from "$app/navigation";
 
@@ -8,6 +8,7 @@
 
 	// Define reactively so page is refreshed on invalidateAll
 	$: ({ recipes, difficulties, mealTypes } = data)
+
 </script>
 
 <h2>Add a new recipe</h2>
@@ -22,4 +23,5 @@
 </RecipeForm>
 
 <h2>Your recipes</h2>
+<SearchRecipes />
 <RecipeList on:recipe-delete={invalidateAll} {recipes} />

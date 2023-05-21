@@ -14,8 +14,8 @@
 			return ingredientIds
 		})
 	}
-	function matchesQuery(name: string) {
-		return name.toLowerCase().search(ingredientQuery.toLowerCase()) !== -1
+	function matchesQuery(qname: string) {
+		return qname.toLowerCase().search(ingredientQuery.toLowerCase()) !== -1
 	}
 	function handleNewIngredient(id: number) {
 		newIngredient = false

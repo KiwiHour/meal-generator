@@ -2,6 +2,14 @@ import { type SupabaseTables, type SupabaseSchema, FormError, FormSuccess } from
 import { getMethodLocation, internalError, sortAlphabeticallyByProperty } from "$lib/functions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+/**
+ * Converts to lowercase and removes all spaces
+ * Optimal for checking if two strings are similar for searches and like
+ */
+function toLowerWiped(str: string) {
+	return str.toLowerCase().replace(/\s+/g, "")
+}
+
 export default class Profile {
 
 	constructor(private supabase: SupabaseClient<SupabaseSchema>) { }
@@ -62,6 +70,18 @@ export default class Profile {
 			throw internalError(error, getMethodLocation(this, this.getRecipes))
 
 		return sortAlphabeticallyByProperty<SupabaseTables["recipes"]["Row"]>(recipes ?? [], "name");
+	}
+	public async searchRecipes(qname?: string | null) {
+		let { data: recipes, error } = await this.supabase.from("recipes").select("*");
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.searchRecipes))
+
+		recipes = recipes ?? []
+		if (qname)
+			recipes = recipes?.filter(recipe => toLowerWiped(recipe.name).includes(toLowerWiped(qname)))
+
+		return sortAlphabeticallyByProperty<SupabaseTables["recipes"]["Row"]>(recipes, "name");
 	}
 	public async getIngredients() {
 		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*");
@@ -132,23 +152,23 @@ export default class Profile {
 	public async doesRecipeNameExist(name: string) {
 		let recipes = await this.getRecipes()
 		// Convert to names, lowercase and remove spaces to match easier
-		let recipeNames = recipes.map(recipe => recipe.name.toLowerCase().replace(/\s+/g, ""))
+		let recipeNames = recipes.map(recipe => toLowerWiped(recipe.name))
 
-		return recipeNames.includes(name.toLowerCase().replace(/\s+/g, ""))
+		return recipeNames.includes(toLowerWiped(name))
 	}
 	public async doesTagExist(name: string) {
 		let tags = await this.getTags()
 		// Convert to names, lowercase and remove spaces to match easier
-		let tagNames = tags.map(tag => tag.name.toLowerCase().replace(/\s+/g, ""))
+		let tagNames = tags.map(tag => toLowerWiped(tag.name))
 
-		return tagNames.includes(name.toLowerCase().replace(/\s+/g, ""))
+		return tagNames.includes(toLowerWiped(name))
 	}
 	public async doesIngredientExist(name: string) {
 		let ingredients = await this.getIngredients()
 		// Convert to names, lowercase and remove spaces to match easier
-		let ingredientNames = ingredients.map(ingredient => ingredient.name.toLowerCase().replace(/\s+/g, ""))
+		let ingredientNames = ingredients.map(ingredient => toLowerWiped(ingredient.name))
 
-		return ingredientNames.includes(name.toLowerCase().replace(/\s+/g, ""))
+		return ingredientNames.includes(toLowerWiped(name))
 	}
 
 

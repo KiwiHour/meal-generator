@@ -4,9 +4,12 @@ import { extractRecipeFormData, internalError } from "$lib/functions";
 import { Recipe } from "$lib/classes";
 
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
+
+	let qname = url.searchParams.get("qname")
+
 	return {
-		recipes: await locals.profile.getRecipes(),
+		recipes: await locals.profile.searchRecipes(qname),
 		difficulties: await locals.profile.getDifficulties(),
 		mealTypes: await locals.profile.getMealTypes()
 	}

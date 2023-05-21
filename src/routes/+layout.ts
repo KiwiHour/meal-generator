@@ -19,7 +19,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
 	const { data: { session }, error } = await supabase.auth.getSession();
 
 	if (error)
-		throw internalError(error, "layout load function")
+		throw internalError(error, "+layout.ts load function")
 
 	return { supabase, profile, session, logger };
 };

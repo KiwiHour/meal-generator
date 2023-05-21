@@ -25,8 +25,15 @@
 			if (error)
 				// Could handle this error differently, maybe some red text, its flexible yknow
 				alert(error.message);
-			else
+			else {
+				await $page.data.logger.log({
+					message: "newingredient",
+					details: {
+						ingredientId: parseInt(id)
+					}
+				})
 				handleNewIngredient(id as number)
+			}
 		}
 	}
 	async function clearSelectedIngredients() {

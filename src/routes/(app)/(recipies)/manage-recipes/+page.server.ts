@@ -48,7 +48,7 @@ export const actions: Actions = {
 		await locals.logger.log({
 			message: "newrecipe",
 			details: {
-				recipeId: id.toString()
+				recipeId: id
 			}
 		})
 

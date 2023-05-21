@@ -15,7 +15,7 @@
 </script>
 
 <form bind:this={formEl} method="GET">
-	<input type="text" name="qname" value={qname} placeholder="Search recipes" />
+	<input type="text" name="qname" bind:value={qname} placeholder="Search recipes" />
 	<input type="submit" value="Search">
 	<input type="button" value="Reset" on:click={resetForm}>
 </form>

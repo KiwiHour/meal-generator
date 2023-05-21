@@ -5,14 +5,10 @@
     import { Loading } from "..";
 
 	function handleIngredientSelect(id: number) {
-		selectedIngredientIds.update(ingredientIds => {
-			if (ingredientIds.includes(id))
-				ingredientIds = ingredientIds.filter(ingredientId => ingredientId != id)
-			else
-				ingredientIds.push(id)
-
-			return ingredientIds
-		})
+		if ($selectedIngredientIds.includes(id)) {
+			$selectedIngredientIds = $selectedIngredientIds.filter(ingredientId => ingredientId != id); console.log("lol") }
+		else
+			$selectedIngredientIds = [...$selectedIngredientIds, id]
 	}
 	function matchesQuery(qname: string) {
 		return qname.toLowerCase().search(ingredientQuery.toLowerCase()) !== -1
@@ -20,10 +16,7 @@
 	function handleNewIngredient(id: number) {
 		newIngredient = false
 		ingredientQuery = ""
-		selectedIngredientIds.update(ingredientIds => {
-			ingredientIds.push(id)
-			return ingredientIds
-		})
+		$selectedIngredientIds = [...$selectedIngredientIds, id]
 		triggerReload++
 	}
 	async function addIngredient() {
@@ -37,15 +30,17 @@
 		}
 	}
 	async function clearSelectedIngredients() {
-		selectedIngredientIds.update(_ => [])
+		$selectedIngredientIds = []
 	}
 
 	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page
 	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
-	export let selectedIds: number[];
+	export let selectedIds: number[] = [];
 	let newIngredient: boolean;
 	let ingredientQuery = "";
 	let triggerReload = 0;
+
+	$selectedIngredientIds = selectedIds
 
 </script>
 
@@ -69,7 +64,7 @@
 						{#if matchesQuery(ingredient.name)}
 							<input type="button"
 								value={titleizeString(ingredient.name, "most-words")}
-								class="ingredient {selectedIds.includes(ingredient.id) ? 'selected' : ''}"
+								class="ingredient {$selectedIngredientIds.includes(ingredient.id) ? 'selected' : ''}"
 								on:click={() => handleIngredientSelect(ingredient.id)}>
 						{/if}
 					{/key}

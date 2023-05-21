@@ -5,32 +5,27 @@
     import { Loading } from "..";
 
 	function handleTagSelect(id: number) {
-		selectedTagIds.update(tagIds => {
-			if (tagIds.includes(id))
-				tagIds = tagIds.filter(tagId => tagId != id)
-			else
-				tagIds.push(id)
-
-			return tagIds
-		})
+		if ($selectedTagIds.includes(id))
+			$selectedTagIds = $selectedTagIds.filter(tagId => tagId != id)
+		else
+			$selectedTagIds = [...$selectedTagIds, id]
 	}
 	function handleNewTag(event: CustomEvent) {
-		selectedTagIds.update(tagIds => {
-			tagIds.push(event.detail.newTagId)
-			return tagIds
-		})
 		newTag = false
+		$selectedTagIds = [...$selectedTagIds, event.detail.newTagId]
 		triggerReload++ 
 	}
 	async function clearSelectedTags() {
-		selectedTagIds.update(_ => [])
+		$selectedTagIds = []
 	}
 
 	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page
 	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
-	export let selectedIds: number[];
+	export let selectedIds: number[] = [];
 	let triggerReload = 0;
 	let newTag = false;
+
+	$selectedTagIds = selectedIds
 
 </script>
 
@@ -45,7 +40,7 @@
 				{#each tags as tag}
 					<input type="button"
 						value={tag.name}
-						class="tag {selectedIds.includes(tag.id) ? 'selected' : ''}"
+						class="tag {$selectedTagIds.includes(tag.id) ? 'selected' : ''}"
 						on:click={() => handleTagSelect(tag.id)}>
 				{/each}
 			</div>

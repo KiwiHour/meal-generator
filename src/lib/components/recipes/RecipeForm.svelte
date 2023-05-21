@@ -39,12 +39,8 @@
 	
 	// Update store with props
 	// Outsourcing the store declaration to this component improves encapsulation
-	selectedIngredientIds.update(_ => ingredientIds)
-	selectedTagIds.update(_ => tagIds)
-
-	// Update the variable here from store on change
-	selectedIngredientIds.subscribe(selectedIngredientIds => ingredientIds = selectedIngredientIds)	
-	selectedTagIds.subscribe(selectedTagIds => tagIds = selectedTagIds)
+	$selectedIngredientIds = ingredientIds
+	$selectedTagIds = tagIds
 
 </script>
 
@@ -72,13 +68,13 @@
 		</select>
 
 		<input type="button" value="Select tags" on:click={() => toggleMenu("tags-selector")}>
-		{#each tagIds as tagId}
+		{#each $selectedTagIds as tagId}
 			<!-- Attach the selected tag ids to the form -->
 			<input type="hidden" name="tagIds[]" value={tagId}>
 		{/each}
 		
 		<input type="button" value="Select ingredients" on:click={() => toggleMenu("ingredients-selector")}>
-		{#each ingredientIds as ingredientId}
+		{#each $selectedIngredientIds as ingredientId}
 			<!-- Attach the selected ingredient ids to the form -->
 			<input type="hidden" name="ingredientIds[]" value={ingredientId}>
 		{/each}
@@ -87,10 +83,10 @@
 	</form>
 
 	{#if openMenus.includes("tags-selector")}
-		<TagsSelector selectedIds={tagIds}/>
+		<TagsSelector />
 	{/if}
 	{#if openMenus.includes("ingredients-selector")}
-		<IngredientsSelector selectedIds={ingredientIds} />
+		<IngredientsSelector />
 	{/if}
 
 	<slot />

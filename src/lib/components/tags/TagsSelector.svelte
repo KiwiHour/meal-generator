@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { selectedTagIds } from "$store";
+    import { selectedTagIds } from "$stores";
     import NewTag from "./NewTag.svelte";
     import { page } from "$app/stores";
     import { Loading } from "..";

@@ -53,8 +53,8 @@ export function internalError(err: Error | PostgrestError | string, location?: s
 	return error(status ?? 500, { message, location })
 }
 
-export function sortAlphabeticallyByProperty<T>(arr: any[], property: string) {
+export function sortAlphabeticallyByKey<T, K extends keyof T>(arr: T[], key: K) {
 	return arr.sort((a, b) =>
-		a[property].toLowerCase() > b[property].toLowerCase() ? 1 :
-			a[property].toLowerCase() < b[property].toLowerCase() ? -1 : 0) as T[]
+		(a[key] as string).toLowerCase() > (b[key] as string).toLowerCase() ? 1 :
+			(a[key] as string).toLowerCase() < (b[key] as string).toLowerCase() ? -1 : 0)
 }

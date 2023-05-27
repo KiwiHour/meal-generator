@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	let qname = url.searchParams.get("qname")
 
 	return {
-		recipes: await locals.profile.searchRecipes(qname),
+
 		difficulties: await locals.profile.getDifficulties(),
 		mealTypes: await locals.profile.getMealTypes()
 	}
@@ -30,31 +30,20 @@ export const actions: Actions = {
 		if (values.difficulty_id < 0) return fail(422, { error: { message: "Please select a difficulty" } })
 		if (values.meal_type_id < 0) return fail(422, { error: { message: "Please select a meal type" } })
 
-		let { error: addRecipeError, id } = await locals.profile.addRecipe(values)
-		if (addRecipeError) return fail(422, { error: addRecipeError })
+		let { failure: addRecipeFailure, id } = await locals.profile.addRecipe(values)
+		if (addRecipeFailure) return fail(422, { failure: addRecipeFailure })
 		if (!id)
 			throw internalError("Id not assigned correctly to new recipe", "POST /add-recipe")
 
-		let recipe = new Recipe(locals.supabase, id)
+		let recipe = new Recipe(locals.supabase, locals.logger, id)
+		let { failure, success } = await recipe.create(tagIds, ingredientIds)
 
-		// Add selected tags to the new recipe
-		let { error: addTagsError } = await recipe.addTags(tagIds)
-		if (addTagsError) return fail(422, { error: addTagsError })
-
-		// Add selected ingredients to the new recipe
-		let { error: addIngredientsError } = await recipe.addIngredients(ingredientIds)
-		if (addIngredientsError) return fail(422, { error: addIngredientsError })
-
-		await locals.logger.log({
-			message: "newrecipe",
-			details: {
-				recipeId: id
-			}
-		})
+		if (failure)
+			return fail(422, { failure })
 
 		// Not using FormSuccess here since this is a more generic message for
 		// 'Recipe added AND the tags were added AND the ingredients were added'
 		// All this extra behind-the-scenes stuff is expected by the user, so a generic success message is better
-		return { success: { message: "Recipe added successfully" } }
+		return { success }
 	}
 };

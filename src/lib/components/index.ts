@@ -1,6 +1,6 @@
 export { default as Navbar } from "./Navbar.svelte"
 export { default as GenericForm } from "./forms/GenericForm.svelte"
-export { default as GenericFormError } from "./forms/GenericFormError.svelte"
+export { default as GenericFormFailure } from "./forms/GenericFormFailure.svelte"
 export { default as GenericFormMessage } from "./forms/GenericFormMessage.svelte"
 export { default as RecipeForm } from "./recipes/RecipeForm.svelte"
 export { default as RecipeList } from "./recipes/RecipeList.svelte"

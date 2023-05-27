@@ -10,12 +10,6 @@
 			// Could handle this error differently, maybe some red text, its flexible yknow
 			alert(error.message);
 		else {
-			await $page.data.logger.log({
-				message: "newtag",
-				details: {
-					tagId: parseInt(id)
-				}
-			})
 			dispatch("new-tag-added", { newTagId: id as number });
 		}
 	}

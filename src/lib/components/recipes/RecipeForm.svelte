@@ -2,7 +2,7 @@
 	
 	import type { SupabaseTables } from "$lib/types";
     import type { ActionResult } from "@sveltejs/kit";
-    import { selectedIngredientIds, selectedTagIds } from "$store";
+    import { selectedIngredientIds, selectedTagIds } from "$stores";
     import { IngredientsSelector, TagsSelector } from "..";
     import { createEventDispatcher } from "svelte";
     import { enhance } from "$app/forms";

@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { ActionData } from './$types';
-    import { GenericFormError, GenericForm } from '$lib/components';
+    import { GenericFormFailure, GenericForm } from '$lib/components';
     import type { FormProps } from '$lib/types';
     
     export let form: ActionData;
@@ -17,7 +17,7 @@
 </script>
 
 <GenericForm params={updatePasswordFormParams} />
-<GenericFormError error={form?.error} />
+<GenericFormFailure failure={form?.error} />
 
 {#if form?.success}
 	<p>Password successfully updated. <a href="/login">Login</a> to your account</p>

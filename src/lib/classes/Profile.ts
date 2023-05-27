@@ -1,18 +1,19 @@
-import { type SupabaseTables, type SupabaseSchema, FormError, FormSuccess } from "$lib/types";
-import { getMethodLocation, internalError, sortAlphabeticallyByProperty } from "$lib/functions";
+import { type SupabaseTables, type SupabaseSchema, FormFailure, FormSuccess } from "$lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type Logger from "./Logger";
+import { getMethodLocation, internalError, sortAlphabeticallyByKey } from "$lib/functions";
 
 /**
  * Converts to lowercase and removes all spaces
  * Optimal for checking if two strings are similar for searches and like
  */
-function toLowerWiped(str: string) {
+function toLowerCaseNoSpaces(str: string) {
 	return str.toLowerCase().replace(/\s+/g, "")
 }
 
 export default class Profile {
 
-	constructor(private supabase: SupabaseClient<SupabaseSchema>) { }
+	constructor(private supabase: SupabaseClient<SupabaseSchema>, private logger: Logger) { }
 
 	// -- Getters --
 
@@ -48,10 +49,10 @@ export default class Profile {
 	public async getMealTypes() {
 		let { data: mealTypes, error } = await this.supabase.from("recipe_meal_types").select("*");
 
-		if (error)
-			throw internalError(error, getMethodLocation(this, this.getMealTypes))
+		if (error || !mealTypes)
+			throw internalError(error || "Failed to select from table", getMethodLocation(this, this.getMealTypes))
 
-		return sortAlphabeticallyByProperty<SupabaseTables["recipe_meal_types"]["Row"]>(mealTypes ?? [], "name");
+		return sortAlphabeticallyByKey(mealTypes, "name");
 	}
 	public async getForename() {
 		let details = await this.getDetails();
@@ -66,38 +67,34 @@ export default class Profile {
 	public async getRecipes() {
 		let { data: recipes, error } = await this.supabase.from("recipes").select("*");
 
-		if (error)
-			throw internalError(error, getMethodLocation(this, this.getRecipes))
+		if (error || !recipes)
+			throw internalError(error || "Failed to select from table", getMethodLocation(this, this.getRecipes))
 
-		return sortAlphabeticallyByProperty<SupabaseTables["recipes"]["Row"]>(recipes ?? [], "name");
+		return sortAlphabeticallyByKey(recipes, "name");
 	}
 	public async searchRecipes(qname?: string | null) {
-		let { data: recipes, error } = await this.supabase.from("recipes").select("*");
-
-		if (error)
-			throw internalError(error, getMethodLocation(this, this.searchRecipes))
-
-		recipes = recipes ?? []
+		// Would do with an ILIKE, but REPLACE isn't possible in supabase client
+		let recipes = await this.getRecipes()
 		if (qname)
-			recipes = recipes?.filter(recipe => toLowerWiped(recipe.name).includes(toLowerWiped(qname)))
+			recipes = recipes?.filter(recipe => toLowerCaseNoSpaces(recipe.name).includes(toLowerCaseNoSpaces(qname)))
 
-		return sortAlphabeticallyByProperty<SupabaseTables["recipes"]["Row"]>(recipes, "name");
+		return sortAlphabeticallyByKey(recipes, "name");
 	}
 	public async getIngredients() {
 		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*");
 
-		if (error)
-			throw internalError(error, getMethodLocation(this, this.getIngredients))
+		if (error || !ingredients)
+			throw internalError(error || "Failed to select from table", getMethodLocation(this, this.getIngredients))
 
-		return sortAlphabeticallyByProperty<SupabaseTables["recipe_ingredients"]["Row"]>(ingredients ?? [], "name");
+		return sortAlphabeticallyByKey(ingredients, "name");
 	}
 	public async getTags() {
 		let { data: tags, error } = await this.supabase.from("recipe_tags").select("*");
 
-		if (error)
-			throw internalError(error, getMethodLocation(this, this.getTags))
+		if (error || !tags)
+			throw internalError(error || "Failed to select from table", getMethodLocation(this, this.getTags))
 
-		return sortAlphabeticallyByProperty<SupabaseTables["recipe_tags"]["Row"]>(tags ?? [], "name");
+		return sortAlphabeticallyByKey(tags, "name");
 	}
 
 	// -- Adders --
@@ -105,7 +102,7 @@ export default class Profile {
 	// Recipe details
 	public async addRecipe(values: Omit<SupabaseTables["recipes"]["Insert"], "user_id">) {
 		if (await this.doesRecipeNameExist(values.name))
-			return { error: { message: FormError.Recipe.EXISTS } };
+			return { failure: { message: FormFailure.Recipe.EXISTS } };
 
 		let details = await this.getDetails();
 		let { data, error } = await this.supabase.from("recipes").insert({ ...values, user_id: details.id }).select().single()
@@ -115,35 +112,49 @@ export default class Profile {
 		if (!data)
 			throw internalError("Could not retrieve newly added recipe", getMethodLocation(this, this.addRecipe))
 
-		return { success: { message: FormSuccess.Recipe.ADDED }, id: data.id }
+		return { id: data.id }
 	}
 	public async addTag(values: Omit<SupabaseTables["recipe_tags"]["Insert"], "user_id">) {
 		if (await this.doesTagExist(values.name))
-			return { error: { message: FormError.Tag.EXISTS } };
+			return { failure: { message: FormFailure.Tag.EXISTS } };
 
 		let details = await this.getDetails();
-		let { data, error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id }).select().single()
+		let { data: tag, error } = await this.supabase.from("recipe_tags").insert({ ...values, user_id: details.id }).select().single()
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.addTag))
-		if (!data)
+		if (!tag)
 			throw internalError("Could not retrieve newly added tag", getMethodLocation(this, this.addTag))
 
-		return { success: { message: FormSuccess.Tag.ADDED }, id: data.id }
+		await this.logger.log({
+			message: "newtag",
+			details: {
+				tagId: tag.id
+			}
+		})
+
+		return { success: { message: FormSuccess.Tag.ADDED }, id: tag.id }
 	}
 	public async addIngredient(values: Omit<SupabaseTables["recipe_ingredients"]["Insert"], "user_id">) {
 		if (await this.doesIngredientExist(values.name))
-			return { error: { message: FormError.Ingredient.EXISTS } };
+			return { failure: { message: FormFailure.Ingredient.EXISTS } };
 
 		let details = await this.getDetails();
-		let { data, error } = await this.supabase.from("recipe_ingredients").insert({ ...values, user_id: details.id }).select().single()
+		let { data: ingredient, error } = await this.supabase.from("recipe_ingredients").insert({ ...values, user_id: details.id }).select().single()
 
 		if (error)
 			throw internalError(error, getMethodLocation(this, this.addIngredient))
-		if (!data)
+		if (!ingredient)
 			throw internalError("Could not retrieve newly added ingredient", getMethodLocation(this, this.addIngredient))
 
-		return { success: { message: FormSuccess.Ingredient.ADDED }, id: data.id }
+		await this.logger.log({
+			message: "newingredient",
+			details: {
+				ingredientId: ingredient.id
+			}
+		})
+
+		return { success: { message: FormSuccess.Ingredient.ADDED }, id: ingredient.id }
 	}
 
 	// -- Validators --
@@ -152,23 +163,23 @@ export default class Profile {
 	public async doesRecipeNameExist(name: string) {
 		let recipes = await this.getRecipes()
 		// Convert to names, lowercase and remove spaces to match easier
-		let recipeNames = recipes.map(recipe => toLowerWiped(recipe.name))
+		let recipeNames = recipes.map(recipe => toLowerCaseNoSpaces(recipe.name))
 
-		return recipeNames.includes(toLowerWiped(name))
+		return recipeNames.includes(toLowerCaseNoSpaces(name))
 	}
 	public async doesTagExist(name: string) {
 		let tags = await this.getTags()
 		// Convert to names, lowercase and remove spaces to match easier
-		let tagNames = tags.map(tag => toLowerWiped(tag.name))
+		let tagNames = tags.map(tag => toLowerCaseNoSpaces(tag.name))
 
-		return tagNames.includes(toLowerWiped(name))
+		return tagNames.includes(toLowerCaseNoSpaces(name))
 	}
 	public async doesIngredientExist(name: string) {
 		let ingredients = await this.getIngredients()
 		// Convert to names, lowercase and remove spaces to match easier
-		let ingredientNames = ingredients.map(ingredient => toLowerWiped(ingredient.name))
+		let ingredientNames = ingredients.map(ingredient => toLowerCaseNoSpaces(ingredient.name))
 
-		return ingredientNames.includes(toLowerWiped(name))
+		return ingredientNames.includes(toLowerCaseNoSpaces(name))
 	}
 
 

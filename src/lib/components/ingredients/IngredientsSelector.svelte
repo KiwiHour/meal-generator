@@ -1,6 +1,6 @@
 <script lang="ts">
     import { titleizeString } from "$lib/functions";
-    import { selectedIngredientIds } from "$store";
+    import { selectedIngredientIds } from "$stores";
     import { page } from "$app/stores";
     import { Loading } from "..";
 
@@ -22,18 +22,14 @@
 	async function addIngredient() {
 		if (confirm(`Add a new ingredient '${ingredientQuery}'?`)) {
 			let { error, id } = await $page.data.profile.addIngredient({ name: ingredientQuery })
-			if (error)
+			if (error || !id) {
 				// Could handle this error differently, maybe some red text, its flexible yknow
-				alert(error.message);
-			else {
-				await $page.data.logger.log({
-					message: "newingredient",
-					details: {
-						ingredientId: parseInt(id)
-					}
-				})
-				handleNewIngredient(id as number)
+				alert(error?.message || "Invalid id upon adding");
+				return;
 			}
+	
+			handleNewIngredient(id as number)
+
 		}
 	}
 	async function clearSelectedIngredients() {
@@ -42,12 +38,9 @@
 
 	// When triggerReload is incremented, the tags will be reloaded (due to the #key), but not the entire page
 	// Which is what would happen when using invalidateAll(), this gives a much cleaner, more encapsulated feel
-	export let selectedIds: number[] = [];
 	let newIngredient: boolean;
 	let ingredientQuery = "";
 	let triggerReload = 0;
-
-	$selectedIngredientIds = selectedIds
 
 </script>
 
@@ -60,26 +53,28 @@
 		<input type="button" id="clear-selected-ingredients-btn" value="Clear" on:click={clearSelectedIngredients}>
 	</form>
 
-	{#key triggerReload}
-		{#await $page.data.profile.getIngredients()}
-			<Loading />
-		{:then ingredients} 
+	<div id="ingredients">
+		{#key triggerReload}
+			{#await $page.data.profile.getIngredients()}
+				<Loading />
+			{:then ingredients} 
 
-			<div id="ingredients">
-				{#each ingredients as ingredient}
-					{#key ingredientQuery}
-						{#if matchesQuery(ingredient.name)}
-							<input type="button"
-								value={titleizeString(ingredient.name, "most-words")}
-								class="ingredient {$selectedIngredientIds.includes(ingredient.id) ? 'selected' : ''}"
-								on:click={() => handleIngredientSelect(ingredient.id)}>
-						{/if}
-					{/key}
-				{/each}
-			</div>
+				<div id="ingredients">
+					{#each ingredients as ingredient}
+						{#key ingredientQuery}
+							{#if matchesQuery(ingredient.name)}
+								<input type="button"
+									value={titleizeString(ingredient.name, "most-words")}
+									class="ingredient {$selectedIngredientIds.includes(ingredient.id) ? 'selected' : ''}"
+									on:click={() => handleIngredientSelect(ingredient.id)}>
+							{/if}
+						{/key}
+					{/each}
+				</div>
 
-		{/await}
+			{/await}
 	{/key}
+	</div>
 
 </div>
 

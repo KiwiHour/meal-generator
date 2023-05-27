@@ -1,13 +1,14 @@
 <script lang="ts">
-	import { RecipeForm, GenericFormMessage, GenericFormError, RecipeList, SearchRecipes } from "$lib/components";
+	import { RecipeForm, GenericFormMessage, GenericFormFailure, RecipeList, SearchRecipes } from "$lib/components";
     import type { ActionData, PageData } from "./$types";
     import { invalidateAll } from "$app/navigation";
+	import { recipes } from "$stores";
 
 	export let form: ActionData
 	export let data: PageData
 
 	// Define reactively so page is refreshed on invalidateAll
-	$: ({ recipes, difficulties, mealTypes } = data)
+	$: ({ difficulties, mealTypes } = data)
 
 </script>
 
@@ -19,9 +20,9 @@
 	formAction="?/add-recipe"
 >
 	<GenericFormMessage message={form?.success?.message}/>
-	<GenericFormError error={form?.error}/>
+	<GenericFormFailure failure={form?.failure}/>
 </RecipeForm>
 
 <h2>Your recipes</h2>
 <SearchRecipes />
-<RecipeList on:recipe-delete={invalidateAll} {recipes} />
+<RecipeList on:recipe-delete={invalidateAll} />

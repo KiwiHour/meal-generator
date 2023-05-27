@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { FormProps } from "$lib/types";
     import type { ActionData } from "./$types";
-    import { GenericFormError, GenericForm } from "$lib/components";
+    import { GenericFormFailure, GenericForm } from "$lib/components";
 
 	export let form: ActionData;
 
@@ -26,5 +26,5 @@
 	<p>Please check your email inbox</p>
 {/if}
 
-<GenericFormError error={form?.error} />
+<GenericFormFailure failure={form?.error} />
 

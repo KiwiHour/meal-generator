@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!id || isNaN(parseInt(id)))
 		throw error(422, `query parameter 'id' not set`)
 
-	let recipe = new Recipe(locals.supabase, parseInt(id))
+	let recipe = new Recipe(locals.supabase, locals.logger, parseInt(id))
 	if (!await recipe.doesExist())
 		throw error(422, `Could not find recipe with id '${id}'`);
 
@@ -41,19 +41,13 @@ export const actions: Actions = {
 		let id = url.searchParams.get("id")
 		if (!id) return fail(422, { error: { message: "Id not found" } })
 
-		let recipe = new Recipe(locals.supabase, parseInt(id))
-		await recipe.update(values)
-		await recipe.updateTags(tagIds)
-		await recipe.updateIngredients(ingredientIds)
+		let recipe = new Recipe(locals.supabase, locals.logger, parseInt(id))
+		let { failure, success } = await recipe.updateAll(values, tagIds, ingredientIds)
 
-		await locals.logger.log({
-			message: "updaterecipe",
-			details: {
-				recipeId: id
-			}
-		})
+		if (failure)
+			return fail(422, { failure })
 
-		return { success: { message: FormSuccess.Recipe.UPDATED } }
+		return { success }
 
 	}
 };

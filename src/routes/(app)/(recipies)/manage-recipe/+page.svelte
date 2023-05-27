@@ -1,7 +1,7 @@
 <script lang="ts">
 
 	import type { ActionData, PageData } from "./$types";
-    import { GenericFormError, GenericFormMessage, RecipeForm } from "$lib/components";
+    import { GenericFormFailure, GenericFormMessage, RecipeForm } from "$lib/components";
     import DeleteRecipe from "$lib/components/recipes/DeleteRecipe.svelte";
     import { goto, invalidateAll } from "$app/navigation";
 	
@@ -29,7 +29,7 @@
 
 			<DeleteRecipe on:recipe-delete={() => goto("/manage-recipes")} id={recipe.id} />
 			<GenericFormMessage message={form?.success?.message}/>
-			<GenericFormError error={form?.error}/>
+			<GenericFormFailure failure={form?.failure}/>
 
 		</RecipeForm>
 	</div>

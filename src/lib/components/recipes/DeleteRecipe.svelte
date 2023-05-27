@@ -5,15 +5,9 @@
 	
 	async function deleteRecipe() {
 		if (confirm("Are you sure you want to delete this recipe?")) {
-			let recipe = new Recipe($page.data.supabase, id)
+			let recipe = new Recipe($page.data.supabase, $page.data.logger, id)
 			await recipe.delete()
 
-			await $page.data.logger.log({
-				message: "deleterecipe",
-				details: {
-					recipeId: id.toString()
-				}
-			})
 			dispatch("recipe-delete")
 		}
 	}

@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { FormProps } from "$lib/types";
 	import type { ActionData } from "./$types";
-    import { GenericFormError, GenericForm } from "$lib/components";
+    import { GenericFormFailure, GenericForm } from "$lib/components";
 
 	export let form: ActionData;
 
@@ -20,4 +20,4 @@
 <p><a href="/reset-password">Forgot your password?</a></p>
 <p>Need an account? <a href="/register">Register</a></p>
 
-<GenericFormError error={form?.error} />
+<GenericFormFailure failure={form?.error} />

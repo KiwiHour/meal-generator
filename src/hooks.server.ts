@@ -34,8 +34,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return session;
 	};
 
-	event.locals.profile = new Profile(event.locals.supabase)
 	event.locals.logger = new Logger(event.locals.supabase)
+	event.locals.profile = new Profile(event.locals.supabase, event.locals.logger)
 	event.locals.mailer = new Mailer()
 
 	// Authentication
@@ -46,5 +46,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (!await event.locals.getSession())
 		throw redirect(303, "/login")
 
-	return await resolve(event);
+	const response = await resolve(event, {
+		filterSerializedResponseHeaders: (name, value) => true
+	});
+	response.headers.set("content-range", "recipes")
+	return response
 }

@@ -1,10 +1,13 @@
-import { FormError, FormSuccess, type SupabaseSchema, type SupabaseTables } from "$lib/types";
+import { FormFailure, FormSuccess, type SupabaseSchema, type SupabaseTables } from "$lib/types";
 import { getMethodLocation, internalError } from "$lib/functions";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type Logger from "./Logger";
+import { fail } from "@sveltejs/kit";
+import { selectedIngredientIds } from "$stores";
 
 export default class Recipe {
 
-	constructor(private supabase: SupabaseClient<SupabaseSchema>, public id: number) { }
+	constructor(private supabase: SupabaseClient<SupabaseSchema>, private logger: Logger, public id: number) { }
 
 	// -- Getters --
 
@@ -91,29 +94,31 @@ export default class Recipe {
 
 	// -- Adders --
 
-	public async addIngredients(ingredientIds: number[]) {
-		let currentIngredientIds = await this.getIngredientIds()
-		let alreadyHasIngredient = currentIngredientIds.some(ingredientId => ingredientIds.includes(ingredientId))
-		if (alreadyHasIngredient)
-			return { error: { message: FormError.Recipe.HAS_INGREDIENT } }
+	/** Add a new recipe to the database */
+	public async create(tagIds: number[], ingredientIds: number[]) {
+		let { failure: addTagsFailure } = await this.addTags(tagIds)
+		if (addTagsFailure)
+			return { failure: addTagsFailure }
 
-		let values = ingredientIds.map(ingredientId => ({
-			recipe_id: this.id,
-			ingredient_id: ingredientId
-		}))
+		let { failure: addIngredientsFailure } = await this.addIngredients(ingredientIds)
+		if (addIngredientsFailure)
+			return { failure: addIngredientsFailure }
 
-		let { error } = await this.supabase.from("xref_recipe_ingredients").insert(values)
+		await this.logger.log({
+			message: "newrecipe",
+			details: {
+				recipeId: this.id
+			}
+		})
 
-		if (error)
-			throw internalError(error, getMethodLocation(this, this.addIngredients))
+		return { success: { message: FormSuccess.Recipe.CREATED } }
 
-		return { success: { message: FormSuccess.Recipe.INGREDIENTS_ADDED } }
 	}
 	public async addTags(tagIds: number[]) {
 		let currentTagIds = await this.getTagIds()
 		let alreadyHasTag = currentTagIds.some(tagId => tagIds.includes(tagId))
 		if (alreadyHasTag)
-			return { error: { message: FormError.Recipe.HAS_TAG } };
+			return { failure: { message: FormFailure.Recipe.HAS_TAG } };
 
 		let values = tagIds.map(tagId => ({
 			recipe_id: this.id,
@@ -128,9 +133,47 @@ export default class Recipe {
 		return { success: { message: FormSuccess.Recipe.TAGS_ADDED } }
 
 	}
+	public async addIngredients(ingredientIds: number[]) {
+		let currentIngredientIds = await this.getIngredientIds()
+		let alreadyHasIngredient = currentIngredientIds.some(ingredientId => ingredientIds.includes(ingredientId))
+		if (alreadyHasIngredient)
+			return { failure: { message: FormFailure.Recipe.HAS_INGREDIENT } }
+
+		let values = ingredientIds.map(ingredientId => ({
+			recipe_id: this.id,
+			ingredient_id: ingredientId
+		}))
+
+		let { error } = await this.supabase.from("xref_recipe_ingredients").insert(values)
+
+		if (error)
+			throw internalError(error, getMethodLocation(this, this.addIngredients))
+
+		return { success: { message: FormSuccess.Recipe.INGREDIENTS_ADDED } }
+	}
 
 	// -- Updaters --
 
+	public async updateAll(values: SupabaseTables["recipes"]["Update"], tagIds: number[], ingredientIds: number[]) {
+		await this.update(values)
+
+		let { failure: updateTagsFailure } = await this.updateTags(tagIds)
+		if (updateTagsFailure)
+			return { failure: updateTagsFailure }
+
+		let { failure: updateIngredientsFailure } = await this.updateIngredients(ingredientIds)
+		if (updateIngredientsFailure)
+			return { failure: updateIngredientsFailure }
+
+		await this.logger.log({
+			message: "updaterecipe",
+			details: {
+				recipeId: this.id
+			}
+		})
+
+		return { success: { message: FormSuccess.Recipe.UPDATED_ALL } }
+	}
 	public async update(values: SupabaseTables["recipes"]["Update"]) {
 		let { error } = await this.supabase.from("recipes").update(values).eq("id", this.id)
 
@@ -139,27 +182,27 @@ export default class Recipe {
 
 		return { success: { message: FormSuccess.Recipe.UPDATED } }
 	}
-	public async updateIngredients(ingredientIds: number[]) {
-		let { error: deleteIngredientsError } = await this.supabase.from("xref_recipe_ingredients").delete().eq("recipe_id", this.id)
-		if (deleteIngredientsError)
-			throw internalError(deleteIngredientsError, getMethodLocation(this, this.updateIngredients));
-
-		let { error: addIngredientsError } = await this.addIngredients(ingredientIds)
-		if (addIngredientsError)
-			throw internalError(addIngredientsError.message, getMethodLocation(this, this.updateIngredients));
-
-		return { success: { message: FormSuccess.Recipe.INGREDIENTS_UPDATED } }
-	}
 	public async updateTags(tagIds: number[]) {
 		let { error: deleteTagsError } = await this.supabase.from("xref_recipe_tags").delete().eq("recipe_id", this.id)
 		if (deleteTagsError)
 			throw internalError(deleteTagsError, getMethodLocation(this, this.updateTags));
 
-		let { error: addTagsError } = await this.addTags(tagIds)
-		if (addTagsError)
-			throw internalError(addTagsError.message, getMethodLocation(this, this.updateTags));
+		let { failure: addTagsFailure } = await this.addTags(tagIds)
+		if (addTagsFailure)
+			return { failure: addTagsFailure }
 
 		return { success: { message: FormSuccess.Recipe.TAGS_UPDATED } }
+	}
+	public async updateIngredients(ingredientIds: number[]) {
+		let { error: deleteIngredientsError } = await this.supabase.from("xref_recipe_ingredients").delete().eq("recipe_id", this.id)
+		if (deleteIngredientsError)
+			throw internalError(deleteIngredientsError, getMethodLocation(this, this.updateIngredients));
+
+		let { failure: addIngredientsFailure } = await this.addIngredients(ingredientIds)
+		if (addIngredientsFailure)
+			return { failure: addIngredientsFailure }
+
+		return { success: { message: FormSuccess.Recipe.INGREDIENTS_UPDATED } }
 	}
 
 	// -- Deleters --

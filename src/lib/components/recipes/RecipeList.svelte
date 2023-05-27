@@ -1,18 +1,23 @@
 <script lang="ts">
     import type { SupabaseTables } from "$lib/types";
+    import { recipes } from "$stores";
+    import { Loading } from "..";
     import DeleteRecipe from "./DeleteRecipe.svelte";
-	
-	export let recipes: SupabaseTables["recipes"]["Row"][];
+
 </script>
 
 <div id="recipe-list">
-	{#each recipes as recipe}
-		<div class="recipe">
-			<p>{recipe.name}</p>
-			<a href="/manage-recipe?id={recipe.id}">Manage recipe</a>
-			<DeleteRecipe id={recipe.id} on:recipe-delete />
-		</div>
-	{/each}
+	{#if $recipes}
+		{#each $recipes as recipe}
+			<div class="recipe">
+				<p>{recipe.name}</p>
+				<a href="/manage-recipe?id={recipe.id}">Manage recipe</a>
+				<DeleteRecipe id={recipe.id} on:recipe-delete />
+			</div>
+		{/each}
+	{:else}
+		<Loading />
+	{/if}
 </div>
 
 <style>

@@ -9,3 +9,9 @@
 	</div>
 
 </div>
+
+<style>
+	#navbar {
+		width: 100%
+	}
+</style>

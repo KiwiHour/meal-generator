@@ -1,7 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
 import { extractRecipeFormData } from '$lib/functions';
 import { error, fail } from '@sveltejs/kit';
-import { FormSuccess } from '$lib/types';
 import { Recipe } from '$lib/classes';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -21,9 +20,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			mealType: await recipe.getMealType(),
 			tags: await recipe.getTags(),
 			ingredients: await recipe.getIngredients()
-		},
-		difficulties: await locals.profile.getDifficulties(),
-		mealTypes: await locals.profile.getMealTypes()
+		}
 	}
 
 };

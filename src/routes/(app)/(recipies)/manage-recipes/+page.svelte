@@ -1,28 +1,36 @@
 <script lang="ts">
-	import { RecipeForm, GenericFormMessage, GenericFormFailure, RecipeList, SearchRecipes } from "$lib/components";
+	import { GenericFormMessage, GenericFormFailure, RecipeList, SearchRecipes, TagsSelector, IngredientsSelector } from "$lib/components";
+    import { DifficultySelector, MealTypeSelector, NameInput, SelectIngredients, SelectTags } from "$lib/components/forms/recipes";
     import type { ActionData, PageData } from "./$types";
     import { invalidateAll } from "$app/navigation";
-	import { recipes } from "$stores";
+    import { openMenu } from "$stores";
 
 	export let form: ActionData
 	export let data: PageData
-
-	// Define reactively so page is refreshed on invalidateAll
-	$: ({ difficulties, mealTypes } = data)
+	let recipeQuery: string;
 
 </script>
 
 <h2>Add a new recipe</h2>
-<RecipeForm on:submit-complete={invalidateAll}
-	{difficulties} {mealTypes}
-	
-	formSubmitButtonText="Add recipe"
-	formAction="?/add-recipe"
->
+
+<form action="?/add-recipe" method="post">
+	<NameInput />
+	<DifficultySelector />
+	<MealTypeSelector />
+	<SelectTags />
+	<SelectIngredients />
+	<input type="submit" value="Add recipe">
+
 	<GenericFormMessage message={form?.success?.message}/>
 	<GenericFormFailure failure={form?.failure}/>
-</RecipeForm>
+</form>
+
+{#if $openMenu == "tags-selector"}
+	<TagsSelector />
+{:else if $openMenu == "ingredients-selector"}
+	<IngredientsSelector />
+{/if}
 
 <h2>Your recipes</h2>
-<SearchRecipes />
-<RecipeList on:recipe-delete={invalidateAll} />
+<SearchRecipes bind:recipeQuery/>
+<RecipeList on:recipe-delete={invalidateAll} {recipeQuery}/>

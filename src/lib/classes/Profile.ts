@@ -72,12 +72,8 @@ export default class Profile {
 
 		return sortAlphabeticallyByKey(recipes, "name");
 	}
-	public async searchRecipes(qname?: string | null) {
-		// Would do with an ILIKE, but REPLACE isn't possible in supabase client
-		let recipes = await this.getRecipes()
-		if (qname)
-			recipes = recipes?.filter(recipe => toLowerCaseNoSpaces(recipe.name).includes(toLowerCaseNoSpaces(qname)))
-
+	public static searchRecipes(recipes: SupabaseTables["recipes"]["Row"][], qname: string) {
+		recipes = recipes?.filter(recipe => toLowerCaseNoSpaces(recipe.name).includes(toLowerCaseNoSpaces(qname)))
 		return sortAlphabeticallyByKey(recipes, "name");
 	}
 	public async getIngredients() {

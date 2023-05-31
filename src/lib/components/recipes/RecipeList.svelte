@@ -1,14 +1,15 @@
 <script lang="ts">
-    import type { SupabaseTables } from "$lib/types";
-    import { recipes } from "$stores";
-    import { Loading } from "..";
-    import DeleteRecipe from "./DeleteRecipe.svelte";
+    import { DeleteRecipe, Loading } from "..";
+    import { Profile } from "$lib/classes";
+	import { recipes } from "$stores";
+
+	export let recipeQuery = "";
 
 </script>
 
 <div id="recipe-list">
 	{#if $recipes}
-		{#each $recipes as recipe}
+		{#each Profile.searchRecipes($recipes, recipeQuery) as recipe}
 			<div class="recipe">
 				<p>{recipe.name}</p>
 				<a href="/manage-recipe?id={recipe.id}">Manage recipe</a>

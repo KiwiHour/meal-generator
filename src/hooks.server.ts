@@ -44,11 +44,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Check if logged in
 	if (!await event.locals.getSession())
-		throw redirect(303, "/login")
+		throw redirect(303, "/login");
 
+	// No clue why, it just breaks without this
 	const response = await resolve(event, {
-		filterSerializedResponseHeaders: (name, value) => true
+		filterSerializedResponseHeaders: () => true
 	});
-	response.headers.set("content-range", "recipes")
+
 	return response
 }

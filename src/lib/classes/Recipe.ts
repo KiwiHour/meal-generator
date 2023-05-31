@@ -74,6 +74,7 @@ export default class Recipe {
 		return mealType
 	}
 	public async getIngredients() {
+
 		let ingredientIds = await this.getIngredientIds()
 		let { data: ingredients, error } = await this.supabase.from("recipe_ingredients").select("*").in("id", ingredientIds)
 

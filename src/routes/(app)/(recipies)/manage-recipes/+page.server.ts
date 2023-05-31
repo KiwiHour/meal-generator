@@ -6,7 +6,7 @@ import { Recipe } from "$lib/classes";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 
-	let qname = url.searchParams.get("qname")
+	let qname = url.searchParams.get("qname") // still need to manage this
 
 	return {
 

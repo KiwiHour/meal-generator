@@ -1,11 +1,17 @@
-import type { Readable } from "svelte/store";
+import type { Readable, Writable } from "svelte/store";
 import type { Database } from "./supabase-schema"
 
 export type { Database as SupabaseSchema } from "./supabase-schema"
 export type SupabaseTables = Database["public"]["Tables"];
+export type Stores = Readable<any> | [Readable<any>, ...Array<Readable<any>>] | Array<Readable<any>>;
 
-export interface RefreshableReadable<T> extends Readable<T> {
-	refresh: () => Promise<void> | void
+export interface ToggleableArrayWritable<T> extends Writable<T[]> {
+	toggle: (element: T) => void
+	clear: () => void
+}
+export interface ToggleableWritable<T> extends Writable<T | null> {
+	toggle: (element: T) => void
+	clear: () => void
 }
 
 export type StringForm = {
@@ -22,7 +28,6 @@ export type FormProps = {
 		placeholder?: string
 	}[]
 }
-
 export namespace FormFailure {
 	export enum Recipe {
 		EXISTS = "A recipe with that name already exists",
